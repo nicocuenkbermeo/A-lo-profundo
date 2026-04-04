@@ -8,6 +8,12 @@ interface InningTrackerProps {
   className?: string;
 }
 
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 export function InningTracker({
   inning,
   inningHalf,
@@ -16,27 +22,27 @@ export function InningTracker({
 }: InningTrackerProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+      {/* Inning display */}
+      <div className="flex items-center gap-1.5 font-display text-sm text-[#F5C842]">
         <span className="text-base leading-none">
           {inningHalf === "TOP" ? "▲" : "▼"}
         </span>
-        <span className="font-mono font-semibold text-foreground">
-          {inning}
+        <span className="tracking-wide">
+          {ordinal(inning)}
         </span>
       </div>
+
+      {/* Outs as diamonds */}
       <div className="flex items-center gap-1">
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className={cn(
-              "h-2 w-2 rounded-full border border-amber-500/50",
-              i < outs ? "bg-amber-500" : "bg-transparent"
-            )}
-          />
+            className="text-sm leading-none"
+            style={{ color: "#F5C842" }}
+          >
+            {i < outs ? "◆" : "◇"}
+          </span>
         ))}
-        <span className="ml-1 text-xs text-muted-foreground">
-          {outs} out{outs !== 1 ? "s" : ""}
-        </span>
       </div>
     </div>
   );

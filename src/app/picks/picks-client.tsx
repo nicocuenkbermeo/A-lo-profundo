@@ -4,14 +4,13 @@ import { useState } from "react"
 import Link from "next/link"
 import { PickCard, type Pick } from "@/components/picks/PickCard"
 import { PickFilters } from "@/components/picks/PickFilters"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import RetroButton from "@/components/vintage/RetroButton"
 
 const mockPicks: Pick[] = [
   {
     id: "1",
-    tipster: { name: "Carlos Rivera", initials: "CR", streak: 7 },
-    game: { away: "NYY", home: "BOS", date: "Abr 4" },
+    tipster: { name: "El Profeta", emoji: "\u26be", streak: 8 },
+    game: { away: "NYY", home: "BOS", awayColor: "#003087", homeColor: "#BD3039", date: "Abr 4" },
     pickType: "MONEYLINE",
     selection: "Yankees ML",
     odds: "-135",
@@ -23,8 +22,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "2",
-    tipster: { name: "Maria Lopez", initials: "ML", streak: 4 },
-    game: { away: "LAD", home: "SF", date: "Abr 4" },
+    tipster: { name: "BatFlip King", emoji: "\ud83d\udc51", streak: 5 },
+    game: { away: "LAD", home: "SF", awayColor: "#005A9C", homeColor: "#FD5A1E", date: "Abr 4" },
     pickType: "RUNLINE",
     selection: "Dodgers -1.5",
     odds: "+110",
@@ -36,8 +35,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "3",
-    tipster: { name: "Diego Martinez", initials: "DM", streak: 0 },
-    game: { away: "HOU", home: "TEX", date: "Abr 4" },
+    tipster: { name: "Sabermetrics Joe", emoji: "\ud83d\udcca", streak: 0 },
+    game: { away: "HOU", home: "TEX", awayColor: "#002D62", homeColor: "#C0111F", date: "Abr 4" },
     pickType: "TOTAL",
     selection: "Over 8.5",
     odds: "-110",
@@ -49,8 +48,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "4",
-    tipster: { name: "Carlos Rivera", initials: "CR", streak: 7 },
-    game: { away: "ATL", home: "NYM", date: "Abr 4" },
+    tipster: { name: "La M\u00e1quina", emoji: "\u2699\ufe0f", streak: 3 },
+    game: { away: "ATL", home: "NYM", awayColor: "#CE1141", homeColor: "#002D72", date: "Abr 4" },
     pickType: "MONEYLINE",
     selection: "Braves ML",
     odds: "-120",
@@ -62,8 +61,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "5",
-    tipster: { name: "Ana Gutierrez", initials: "AG", streak: 2 },
-    game: { away: "CHC", home: "MIL", date: "Abr 3" },
+    tipster: { name: "El Zurdo", emoji: "\ud83e\udde4", streak: 2 },
+    game: { away: "CHC", home: "MIL", awayColor: "#0E3386", homeColor: "#12284B", date: "Abr 3" },
     pickType: "PROP",
     selection: "Contreras 2+ hits",
     odds: "+180",
@@ -75,8 +74,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "6",
-    tipster: { name: "Maria Lopez", initials: "ML", streak: 4 },
-    game: { away: "SD", home: "ARI", date: "Abr 3" },
+    tipster: { name: "BatFlip King", emoji: "\ud83d\udc51", streak: 5 },
+    game: { away: "SD", home: "ARI", awayColor: "#2F241D", homeColor: "#A71930", date: "Abr 3" },
     pickType: "MONEYLINE",
     selection: "Padres ML",
     odds: "+105",
@@ -88,8 +87,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "7",
-    tipster: { name: "Roberto Sanchez", initials: "RS", streak: 0 },
-    game: { away: "MIN", home: "CLE", date: "Abr 3" },
+    tipster: { name: "Sabermetrics Joe", emoji: "\ud83d\udcca", streak: 0 },
+    game: { away: "MIN", home: "CLE", awayColor: "#002B5C", homeColor: "#00385D", date: "Abr 3" },
     pickType: "RUNLINE",
     selection: "Guardians -1.5",
     odds: "+140",
@@ -101,8 +100,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "8",
-    tipster: { name: "Diego Martinez", initials: "DM", streak: 0 },
-    game: { away: "PHI", home: "WSH", date: "Abr 3" },
+    tipster: { name: "El Profeta", emoji: "\u26be", streak: 8 },
+    game: { away: "PHI", home: "WSH", awayColor: "#E81828", homeColor: "#AB0003", date: "Abr 3" },
     pickType: "TOTAL",
     selection: "Under 7.5",
     odds: "-105",
@@ -114,8 +113,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "9",
-    tipster: { name: "Ana Gutierrez", initials: "AG", streak: 2 },
-    game: { away: "SEA", home: "OAK", date: "Abr 2" },
+    tipster: { name: "El Zurdo", emoji: "\ud83e\udde4", streak: 2 },
+    game: { away: "SEA", home: "OAK", awayColor: "#0C2C56", homeColor: "#003831", date: "Abr 2" },
     pickType: "MONEYLINE",
     selection: "Mariners ML",
     odds: "-165",
@@ -127,8 +126,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "10",
-    tipster: { name: "Carlos Rivera", initials: "CR", streak: 7 },
-    game: { away: "TB", home: "BAL", date: "Abr 2" },
+    tipster: { name: "El Profeta", emoji: "\u26be", streak: 8 },
+    game: { away: "TB", home: "BAL", awayColor: "#092C5C", homeColor: "#DF4601", date: "Abr 2" },
     pickType: "MONEYLINE",
     selection: "Orioles ML",
     odds: "-140",
@@ -140,8 +139,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "11",
-    tipster: { name: "Maria Lopez", initials: "ML", streak: 4 },
-    game: { away: "CIN", home: "STL", date: "Abr 2" },
+    tipster: { name: "La M\u00e1quina", emoji: "\u2699\ufe0f", streak: 3 },
+    game: { away: "CIN", home: "STL", awayColor: "#C6011F", homeColor: "#C41E3A", date: "Abr 2" },
     pickType: "TOTAL",
     selection: "Over 9",
     odds: "-115",
@@ -153,8 +152,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "12",
-    tipster: { name: "Roberto Sanchez", initials: "RS", streak: 0 },
-    game: { away: "DET", home: "KC", date: "Abr 1" },
+    tipster: { name: "Sabermetrics Joe", emoji: "\ud83d\udcca", streak: 0 },
+    game: { away: "DET", home: "KC", awayColor: "#0C2340", homeColor: "#004687", date: "Abr 1" },
     pickType: "RUNLINE",
     selection: "Royals -1.5",
     odds: "+135",
@@ -166,8 +165,8 @@ const mockPicks: Pick[] = [
   },
   {
     id: "13",
-    tipster: { name: "Diego Martinez", initials: "DM", streak: 0 },
-    game: { away: "MIA", home: "PIT", date: "Abr 1" },
+    tipster: { name: "BatFlip King", emoji: "\ud83d\udc51", streak: 5 },
+    game: { away: "MIA", home: "PIT", awayColor: "#00A3E0", homeColor: "#27251F", date: "Abr 1" },
     pickType: "MONEYLINE",
     selection: "Pirates ML",
     odds: "-125",
@@ -179,21 +178,21 @@ const mockPicks: Pick[] = [
   },
   {
     id: "14",
-    tipster: { name: "Ana Gutierrez", initials: "AG", streak: 2 },
-    game: { away: "COL", home: "LAA", date: "Abr 1" },
+    tipster: { name: "El Zurdo", emoji: "\ud83e\udde4", streak: 2 },
+    game: { away: "COL", home: "LAA", awayColor: "#33006F", homeColor: "#BA0021", date: "Abr 1" },
     pickType: "PROP",
     selection: "Ohtani 1+ HR",
     odds: "+200",
     stake: 2,
-    analysis: "Shohei en modo MVP contra un pitcheo de Colorado que permite la mayor cantidad de jonrones en la liga. El Coors Effect inverso no aplica en Anaheim pero Ohtani batea .400 contra este staff.",
+    analysis: "Shohei en modo MVP contra un pitcheo de Colorado que permite la mayor cantidad de jonrones en la liga. El Coors Effect inverso no aplica pero Ohtani batea .400 contra este staff.",
     result: "VOID",
     profit: 0,
     timestamp: "Hace 5d",
   },
   {
     id: "15",
-    tipster: { name: "Carlos Rivera", initials: "CR", streak: 7 },
-    game: { away: "TOR", home: "CHW", date: "Mar 31" },
+    tipster: { name: "La M\u00e1quina", emoji: "\u2699\ufe0f", streak: 3 },
+    game: { away: "TOR", home: "CHW", awayColor: "#134A8E", homeColor: "#27251F", date: "Mar 31" },
     pickType: "MONEYLINE",
     selection: "Blue Jays ML",
     odds: "-180",
@@ -210,20 +209,14 @@ export function PicksPageClient() {
   const visible = mockPicks.slice(0, visibleCount)
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
+    <div className="mx-auto max-w-3xl px-4 py-8 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Picks</h1>
-        <Link href="/picks/new">
-          <Button size="sm">
-            <Plus className="mr-1.5 size-4" />
-            Nuevo Pick
-          </Button>
-        </Link>
+        <h1 className="font-heading text-3xl font-bold text-[#F5C842]">PICKS DEL D\u00cdA</h1>
       </div>
 
       <PickFilters />
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {visible.map((pick) => (
           <Link key={pick.id} href={`/picks/${pick.id}`} className="block">
             <PickCard pick={pick} />
@@ -232,12 +225,21 @@ export function PicksPageClient() {
       </div>
 
       {visibleCount < mockPicks.length && (
-        <div className="flex justify-center pt-2">
-          <Button variant="outline" onClick={() => setVisibleCount((c) => c + 8)}>
-            Cargar mas
-          </Button>
+        <div className="flex justify-center pt-4">
+          <RetroButton variant="gold" onClick={() => setVisibleCount((c) => c + 8)}>
+            CARGAR M\u00c1S
+          </RetroButton>
         </div>
       )}
+
+      {/* Floating new pick button on mobile */}
+      <div className="fixed bottom-24 right-4 lg:bottom-8 z-40">
+        <Link href="/picks/new">
+          <RetroButton variant="gold" size="lg">
+            + NUEVO PICK
+          </RetroButton>
+        </Link>
+      </div>
     </div>
   )
 }

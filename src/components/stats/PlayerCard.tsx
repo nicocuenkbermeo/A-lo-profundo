@@ -1,12 +1,12 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 
 interface PlayerCardProps {
   player: {
     id: string
     name: string
     team: string
+    teamColor?: string
     position: string
     number: number
     stats: { label: string; value: string }[]
@@ -20,31 +20,56 @@ export function PlayerCard({ player }: PlayerCardProps) {
     .join("")
     .slice(0, 2)
 
+  const teamColor = player.teamColor || "#0D2240"
+
   return (
-    <Link href={`/stats/players/${player.id}`}>
-      <div className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-amber-500/30 hover:bg-muted/30">
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-sm font-bold text-amber-500">
-          {initials}
+    <Link href={`/stats/players/${player.id}`} className="block group">
+      <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0px_#5C4A32]">
+        {/* Corner ornaments */}
+        <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-[#8B7355]/40" />
+        <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-[#8B7355]/40" />
+        <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-[#8B7355]/40" />
+        <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-[#8B7355]/40" />
+
+        {/* Photo area */}
+        <div
+          className="relative h-28 flex items-center justify-center"
+          style={{ backgroundColor: teamColor }}
+        >
+          <span className="text-white/20 text-6xl font-[family-name:var(--font-mono)] font-bold absolute right-3 bottom-0 leading-none">
+            {player.number}
+          </span>
+          <span className="text-white text-3xl font-[family-name:var(--font-heading)] font-bold tracking-wide relative z-10">
+            {initials}
+          </span>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-foreground truncate">
+
+        {/* Info */}
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-[family-name:var(--font-heading)] font-bold text-[#3D2B1F] text-sm leading-tight truncate">
               {player.name}
-            </span>
-            <Badge variant="secondary" className="text-[10px] shrink-0">
-              {player.position}
-            </Badge>
-            <span className="text-xs text-muted-foreground shrink-0">
-              {player.team}
-            </span>
+            </h3>
+            <div
+              className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-white text-[9px] font-[family-name:var(--font-display)] font-bold"
+              style={{ backgroundColor: teamColor }}
+            >
+              {player.team.slice(0, 3)}
+            </div>
           </div>
-          <div className="mt-2 flex gap-4">
-            {player.stats.map((stat) => (
+
+          <span className="font-[family-name:var(--font-display)] uppercase text-[10px] tracking-wider text-[#8B7355]">
+            {player.position}
+          </span>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-4 gap-1 mt-3 pt-3 border-t border-[#8B7355]/20">
+            {player.stats.slice(0, 4).map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-mono text-sm font-semibold text-foreground">
+                <div className="font-[family-name:var(--font-mono)] text-sm font-bold text-[#C41E3A]">
                   {stat.value}
                 </div>
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <div className="font-[family-name:var(--font-display)] text-[9px] uppercase tracking-wider text-[#8B7355]">
                   {stat.label}
                 </div>
               </div>

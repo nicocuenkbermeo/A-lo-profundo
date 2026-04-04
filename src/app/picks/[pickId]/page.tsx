@@ -1,15 +1,18 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { PickResult } from "@/components/picks/PickResult"
-import { ChevronRight, Flame, TrendingUp, Calendar, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const mockPick = {
   id: "1",
-  tipster: { name: "Carlos Rivera", initials: "CR", streak: 7, record: "45-18", winPct: 71.4, roi: 18.5 },
-  game: { away: "NYY", home: "BOS", date: "Abr 4, 2026", time: "7:05 PM ET", awayFull: "New York Yankees", homeFull: "Boston Red Sox" },
+  tipster: { name: "El Profeta", emoji: "\u26be", streak: 8, record: "52-18", winPct: 74.3, roi: 22.1 },
+  game: {
+    away: "NYY", home: "BOS", date: "Abr 4, 2026", time: "7:05 PM ET",
+    awayFull: "New York Yankees", homeFull: "Boston Red Sox",
+    awayColor: "#003087", homeColor: "#BD3039",
+    awayPitcher: "Gerrit Cole (5-1, 1.89 ERA)",
+    homePitcher: "Nick Pivetta (2-3, 4.12 ERA)",
+  },
   pickType: "MONEYLINE" as const,
   selection: "Yankees ML",
   odds: "-135",
@@ -21,16 +24,16 @@ const mockPick = {
 }
 
 const relatedPicks = [
-  { id: "r1", tipster: "Maria Lopez", selection: "Over 8.5", odds: "+100", result: "LOSS", pickType: "TOTAL" },
-  { id: "r2", tipster: "Diego Martinez", selection: "Red Sox +1.5", odds: "-130", result: "WIN", pickType: "RUNLINE" },
-  { id: "r3", tipster: "Ana Gutierrez", selection: "Judge 1+ HR", odds: "+250", result: "WIN", pickType: "PROP" },
+  { id: "r1", tipster: "BatFlip King", selection: "Over 8.5", odds: "+100", result: "LOSS", pickType: "TOTAL" },
+  { id: "r2", tipster: "La M\u00e1quina", selection: "Red Sox +1.5", odds: "-130", result: "WIN", pickType: "RUNLINE" },
+  { id: "r3", tipster: "El Zurdo", selection: "Judge 1+ HR", odds: "+250", result: "WIN", pickType: "PROP" },
 ]
 
 export async function generateMetadata({ params }: { params: Promise<{ pickId: string }> }): Promise<Metadata> {
   const { pickId } = await params
   return {
     title: `Pick #${pickId} - ${mockPick.selection}`,
-    description: `${mockPick.tipster.name}: ${mockPick.selection} (${mockPick.odds}) - ${mockPick.game.awayFull} vs ${mockPick.game.homeFull}`,
+    description: `${mockPick.tipster.name}: ${mockPick.selection} (${mockPick.odds})`,
   }
 }
 
@@ -38,148 +41,168 @@ export default async function PickDetailPage({ params }: { params: Promise<{ pic
   await params
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
+    <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/picks" className="hover:text-foreground transition-colors">Picks</Link>
-        <ChevronRight className="size-3.5" />
-        <span className="text-foreground">{mockPick.selection}</span>
+      <nav className="flex items-center gap-2 font-display text-sm uppercase tracking-wider text-[#8B7355]">
+        <Link href="/picks" className="hover:text-[#F5C842] transition-colors">Picks</Link>
+        <span className="text-[#8B7355]/50">&gt;</span>
+        <span className="text-[#FDF6E3]">{mockPick.selection}</span>
       </nav>
 
-      {/* Main pick card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex size-11 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary">
-                {mockPick.tipster.initials}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">{mockPick.tipster.name}</span>
-                  <span className="inline-flex items-center gap-0.5 text-sm text-primary font-medium">
-                    <Flame className="size-3.5 fill-primary text-primary" />
-                    {mockPick.tipster.streak}
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground">{mockPick.timestamp}</span>
-              </div>
-            </div>
-            <PickResult result={mockPick.result} />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {/* Game info */}
-          <div className="rounded-lg border border-border bg-background p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-mono text-lg font-bold">{mockPick.game.away} vs {mockPick.game.home}</p>
-                <p className="text-sm text-muted-foreground">{mockPick.game.awayFull} vs {mockPick.game.homeFull}</p>
-              </div>
-              <div className="text-right text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="size-3.5" />
-                  {mockPick.game.date}
-                </div>
-                <p>{mockPick.game.time}</p>
-              </div>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main pick card - large */}
+        <div className="lg:col-span-2">
+          <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+            <div className="absolute top-[6px] left-[6px] w-5 h-5 border-t-2 border-l-2 border-[#8B7355] pointer-events-none" />
+            <div className="absolute top-[6px] right-[6px] w-5 h-5 border-t-2 border-r-2 border-[#8B7355] pointer-events-none" />
+            <div className="absolute bottom-[6px] left-[6px] w-5 h-5 border-b-2 border-l-2 border-[#8B7355] pointer-events-none" />
+            <div className="absolute bottom-[6px] right-[6px] w-5 h-5 border-b-2 border-r-2 border-[#8B7355] pointer-events-none" />
 
-          {/* Pick details */}
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="secondary" className="bg-blue-500/15 text-blue-400 border-blue-500/20">
-              {mockPick.pickType}
-            </Badge>
-            <span className="text-lg font-bold">{mockPick.selection}</span>
-            <span className="font-mono text-muted-foreground">({mockPick.odds})</span>
-          </div>
-
-          {/* Stake */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Stake:</span>
-            <span className="inline-flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Flame
-                  key={i}
-                  className={cn(
-                    "size-4",
-                    i < mockPick.stake ? "fill-primary text-primary" : "text-muted-foreground/30"
-                  )}
-                />
-              ))}
-            </span>
-            <span className="text-sm font-medium">{mockPick.stake}/5</span>
-          </div>
-
-          {/* Profit */}
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-3">
-            <TrendingUp className={cn("size-4", mockPick.profit > 0 ? "text-win" : "text-loss")} />
-            <span className="text-sm text-muted-foreground">Profit:</span>
-            <span className={cn("font-mono font-bold", mockPick.profit > 0 ? "text-win" : "text-loss")}>
-              {mockPick.profit > 0 ? "+" : ""}{mockPick.profit.toFixed(2)} unidades
-            </span>
-          </div>
-
-          {/* Full analysis */}
-          <div className="space-y-2">
-            <h3 className="font-semibold">Analisis</h3>
-            <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-              {mockPick.analysis}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tipster mini profile */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <User className="size-4" />
-            Perfil del Tipster
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <div className="flex size-14 items-center justify-center rounded-full bg-primary/20 text-lg font-bold text-primary">
-              {mockPick.tipster.initials}
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold">{mockPick.tipster.name}</p>
-              <div className="mt-1 flex flex-wrap gap-4 text-sm">
-                <span>Record: <strong>{mockPick.tipster.record}</strong></span>
-                <span>Win%: <strong className="text-win">{mockPick.tipster.winPct}%</strong></span>
-                <span>ROI: <strong className="text-win">+{mockPick.tipster.roi}%</strong></span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Related picks */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Otros Picks para este juego</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {relatedPicks.map((rp) => (
-              <div key={rp.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <div className="p-6 space-y-5">
+              {/* Header */}
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="bg-blue-500/15 text-blue-400 border-blue-500/20 text-[10px]">
-                    {rp.pickType}
-                  </Badge>
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#0D2240] text-xl border-2 border-[#8B7355]">
+                    {mockPick.tipster.emoji}
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">{rp.selection} <span className="font-mono text-xs text-muted-foreground">({rp.odds})</span></p>
-                    <p className="text-xs text-muted-foreground">{rp.tipster}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="font-heading font-bold text-[#3D2B1F]">{mockPick.tipster.name}</span>
+                      <span className="inline-flex items-center gap-1 font-display text-xs bg-[#C41E3A]/10 text-[#C41E3A] px-2 py-0.5 rounded-sm">
+                        &#x1F525; x{mockPick.tipster.streak}
+                      </span>
+                    </div>
+                    <span className="font-display text-xs text-[#8B7355]">{mockPick.timestamp}</span>
                   </div>
                 </div>
-                <PickResult result={rp.result} size="sm" />
+                <PickResult result={mockPick.result} />
               </div>
-            ))}
+
+              <div className="border-t-2 border-dashed border-[#C41E3A]/50" />
+
+              {/* Pick details */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="bg-[#0D2240] text-[#F5C842] font-display text-xs uppercase tracking-wider px-3 py-1 rounded-sm">
+                  {mockPick.pickType}
+                </span>
+                <span className="font-sans font-bold text-lg text-[#3D2B1F]">{mockPick.selection}</span>
+                <span className="font-mono text-sm text-[#8B7355]">({mockPick.odds})</span>
+              </div>
+
+              {/* Stake */}
+              <div className="flex items-center gap-2">
+                <span className="inline-flex gap-0.5 text-lg">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} className={i < mockPick.stake ? "opacity-100" : "opacity-20"}>&#x1F525;</span>
+                  ))}
+                </span>
+                <span className="font-display text-sm text-[#3D2B1F]">{mockPick.stake} unidades</span>
+              </div>
+
+              {/* Profit */}
+              <div className="flex items-center gap-3 bg-[#0D2240]/5 border-2 border-[#8B7355]/30 rounded-sm p-3">
+                <span className="font-display text-xs uppercase text-[#8B7355]">Profit:</span>
+                <span className={cn("font-mono font-bold text-lg", mockPick.profit > 0 ? "text-[#2E7D32]" : "text-[#C62828]")}>
+                  {mockPick.profit > 0 ? "+" : ""}{mockPick.profit.toFixed(2)} unidades
+                </span>
+              </div>
+
+              {/* Full analysis */}
+              <div className="space-y-2">
+                <h3 className="font-heading font-bold text-[#3D2B1F]">An\u00e1lisis</h3>
+                <div className="font-sans text-sm leading-relaxed text-[#3D2B1F]/80 whitespace-pre-line">
+                  {mockPick.analysis}
+                </div>
+              </div>
+
+              {/* Related picks */}
+              <div className="border-t-2 border-[#8B7355]/30 pt-4 space-y-3">
+                <h3 className="font-heading font-bold text-sm text-[#3D2B1F]">Otros Picks para este juego</h3>
+                {relatedPicks.map((rp) => (
+                  <div key={rp.id} className="flex items-center justify-between bg-[#0D2240]/5 border border-[#8B7355]/30 rounded-sm p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="bg-[#0D2240] text-[#F5C842] font-display text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-sm">
+                        {rp.pickType}
+                      </span>
+                      <div>
+                        <p className="font-sans text-sm font-medium text-[#3D2B1F]">{rp.selection} <span className="font-mono text-xs text-[#8B7355]">({rp.odds})</span></p>
+                        <p className="font-display text-xs text-[#8B7355]">{rp.tipster}</p>
+                      </div>
+                    </div>
+                    <PickResult result={rp.result} size="sm" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Game info card */}
+          <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+            <div className="absolute top-[6px] left-[6px] w-4 h-4 border-t-2 border-l-2 border-[#8B7355] pointer-events-none" />
+            <div className="absolute top-[6px] right-[6px] w-4 h-4 border-t-2 border-r-2 border-[#8B7355] pointer-events-none" />
+            <div className="p-4 space-y-3">
+              <h3 className="font-heading font-bold text-sm text-[#3D2B1F] text-center">INFO DEL JUEGO</h3>
+              <div className="border-t-2 border-dashed border-[#C41E3A]/40" />
+              <div className="flex items-center justify-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-full text-[10px] font-bold text-white border-2 border-[#8B7355]" style={{ backgroundColor: mockPick.game.awayColor }}>
+                  {mockPick.game.away}
+                </div>
+                <span className="font-display text-xs text-[#8B7355]">vs</span>
+                <div className="flex size-10 items-center justify-center rounded-full text-[10px] font-bold text-white border-2 border-[#8B7355]" style={{ backgroundColor: mockPick.game.homeColor }}>
+                  {mockPick.game.home}
+                </div>
+              </div>
+              <div className="text-center space-y-1">
+                <p className="font-sans text-xs text-[#3D2B1F]/70">{mockPick.game.awayFull}</p>
+                <p className="font-sans text-xs text-[#3D2B1F]/70">vs {mockPick.game.homeFull}</p>
+              </div>
+              <div className="font-display text-xs text-[#8B7355] text-center space-y-0.5">
+                <p>{mockPick.game.date}</p>
+                <p>{mockPick.game.time}</p>
+              </div>
+              <div className="border-t border-[#8B7355]/30 pt-2 space-y-1">
+                <p className="font-display text-[10px] uppercase tracking-wider text-[#8B7355]">Abridores</p>
+                <p className="font-sans text-xs text-[#3D2B1F]">{mockPick.game.awayPitcher}</p>
+                <p className="font-sans text-xs text-[#3D2B1F]">{mockPick.game.homePitcher}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tipster mini profile */}
+          <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+            <div className="absolute top-[6px] left-[6px] w-4 h-4 border-t-2 border-l-2 border-[#8B7355] pointer-events-none" />
+            <div className="absolute top-[6px] right-[6px] w-4 h-4 border-t-2 border-r-2 border-[#8B7355] pointer-events-none" />
+            <div className="p-4 space-y-3">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex size-14 items-center justify-center rounded-full bg-[#0D2240] text-2xl border-2 border-[#8B7355]">
+                  {mockPick.tipster.emoji}
+                </div>
+                <h3 className="font-heading font-bold text-[#3D2B1F]">{mockPick.tipster.name}</h3>
+                <span className="inline-flex items-center gap-1 font-display text-xs bg-[#C41E3A]/10 text-[#C41E3A] px-2 py-0.5 rounded-sm">
+                  &#x1F525; x{mockPick.tipster.streak}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 text-center">
+                <div>
+                  <p className="font-display text-[10px] uppercase text-[#8B7355]">Record</p>
+                  <p className="font-mono text-sm font-bold text-[#3D2B1F]">{mockPick.tipster.record}</p>
+                </div>
+                <div>
+                  <p className="font-display text-[10px] uppercase text-[#8B7355]">Win%</p>
+                  <p className="font-mono text-sm font-bold text-[#2E7D32]">{mockPick.tipster.winPct}%</p>
+                </div>
+                <div>
+                  <p className="font-display text-[10px] uppercase text-[#8B7355]">ROI</p>
+                  <p className="font-mono text-sm font-bold text-[#2E7D32]">+{mockPick.tipster.roi}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

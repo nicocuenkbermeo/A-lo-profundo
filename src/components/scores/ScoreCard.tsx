@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { LiveIndicator } from "./LiveIndicator";
 import { InningTracker } from "./InningTracker";
 import type { Game } from "@/types/game";
@@ -12,79 +10,48 @@ interface ScoreCardProps {
   game: Game;
 }
 
-function StatusBadge({ status }: { status: Game["status"] }) {
-  switch (status) {
-    case "LIVE":
-      return (
-        <Badge variant="destructive" className="animate-pulse gap-1 text-[10px]">
-          <span className="h-1.5 w-1.5 rounded-full bg-white" />
-          En Vivo
-        </Badge>
-      );
-    case "FINAL":
-      return (
-        <Badge variant="secondary" className="text-[10px]">
-          Final
-        </Badge>
-      );
-    case "SCHEDULED":
-      return (
-        <Badge className="bg-blue-500/20 text-blue-400 text-[10px] hover:bg-blue-500/30">
-          Programado
-        </Badge>
-      );
-    case "POSTPONED":
-      return (
-        <Badge variant="secondary" className="text-[10px]">
-          Pospuesto
-        </Badge>
-      );
-    default:
-      return null;
-  }
-}
-
-function TeamRow({
-  abbreviation,
-  name,
-  color,
-  score,
-  isWinning,
-}: {
-  abbreviation: string;
-  name: string;
-  color: string;
-  score: number;
-  isWinning: boolean;
-}) {
+function TeamBadge({ abbreviation, color }: { abbreviation: string; color: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold text-white"
-          style={{ backgroundColor: color }}
-        >
-          {abbreviation}
-        </div>
-        <span
-          className={cn(
-            "text-sm font-medium",
-            isWinning ? "text-foreground" : "text-muted-foreground"
-          )}
-        >
-          {name}
-        </span>
-      </div>
-      <span
-        className={cn(
-          "font-mono text-xl tabular-nums",
-          isWinning ? "font-bold text-amber-500" : "text-muted-foreground"
-        )}
-      >
-        {score}
-      </span>
+    <div
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white border-2 border-[#8B7355]"
+      style={{ backgroundColor: color }}
+    >
+      {abbreviation}
     </div>
   );
+}
+
+function StatusTag({ status }: { status: Game["status"] }) {
+  if (status === "LIVE") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#C41E3A] text-white text-[10px] font-display uppercase tracking-wider rounded-sm animate-pulse-live">
+        <span className="h-1.5 w-1.5 rounded-full bg-white" />
+        En Vivo
+      </span>
+    );
+  }
+  if (status === "FINAL") {
+    return (
+      <span className="inline-flex px-2.5 py-1 bg-[#3D2B1F] text-[#FDF6E3] text-[10px] font-display uppercase tracking-wider rounded-sm">
+        Final
+      </span>
+    );
+  }
+  if (status === "SCHEDULED") {
+    return (
+      <span className="inline-flex px-2.5 py-1 border-2 border-[#0D2240] text-[#0D2240] text-[10px] font-display uppercase tracking-wider rounded-sm">
+        Programado
+      </span>
+    );
+  }
+  if (status === "POSTPONED") {
+    return (
+      <span className="inline-flex px-2.5 py-1 bg-[#8B7355] text-[#FDF6E3] text-[10px] font-display uppercase tracking-wider rounded-sm">
+        Pospuesto
+      </span>
+    );
+  }
+  return null;
 }
 
 export function ScoreCard({ game }: ScoreCardProps) {
@@ -102,62 +69,100 @@ export function ScoreCard({ game }: ScoreCardProps) {
   });
 
   return (
-    <Link href={`/scores/${game.id}`}>
-      <Card className="bg-[#13131a] border-[#1e1e2e] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-amber-500/5 cursor-pointer">
-        <CardContent className="p-4 space-y-3">
+    <Link href={`/scores/${game.id}`} className="block group">
+      <div
+        className={cn(
+          "relative bg-[#FDF6E3] border-[3px] border-[#8B7355] rounded-sm",
+          "shadow-[4px_4px_0px_#5C4A32]",
+          "transition-all duration-200 cursor-pointer",
+          "group-hover:-translate-y-[2px] group-hover:shadow-[6px_6px_0px_#5C4A32]",
+          "paper-texture corner-ornaments"
+        )}
+      >
+        {/* Bottom corner ornaments (via extra divs since ::before/after used by corner-ornaments) */}
+        <div className="absolute bottom-[6px] left-[6px] w-5 h-5 border-b-2 border-l-2 border-[#8B7355] pointer-events-none" />
+        <div className="absolute bottom-[6px] right-[6px] w-5 h-5 border-b-2 border-r-2 border-[#8B7355] pointer-events-none" />
+
+        <div className="p-4 space-y-3">
+          {/* Status row */}
           <div className="flex items-center justify-between">
-            <StatusBadge status={game.status} />
+            <StatusTag status={game.status} />
             {isScheduled && (
-              <span className="text-xs text-muted-foreground">{timeString}</span>
+              <span className="font-mono text-xs text-[#0D2240]">{timeString}</span>
             )}
           </div>
 
-          <div className="space-y-2">
-            <TeamRow
-              abbreviation={game.awayTeam.abbreviation}
-              name={game.awayTeam.name}
-              color={game.awayTeam.primaryColor}
-              score={game.awayScore}
-              isWinning={isFinal ? awayWinning : isLive ? awayWinning : false}
-            />
-            <TeamRow
-              abbreviation={game.homeTeam.abbreviation}
-              name={game.homeTeam.name}
-              color={game.homeTeam.primaryColor}
-              score={game.homeScore}
-              isWinning={isFinal ? homeWinning : isLive ? homeWinning : false}
-            />
+          {/* Away team row */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <TeamBadge abbreviation={game.awayTeam.abbreviation} color={game.awayTeam.primaryColor} />
+              <span className={cn(
+                "font-sans text-sm",
+                awayWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
+              )}>
+                {game.awayTeam.city} {game.awayTeam.name}
+              </span>
+            </div>
+            {!isScheduled && (
+              <span className={cn(
+                "font-mono text-2xl font-bold tabular-nums",
+                awayWinning && (isLive || isFinal) ? "text-[#C41E3A]" : "text-[#3D2B1F]/60"
+              )}>
+                {game.awayScore}
+              </span>
+            )}
           </div>
 
-          <div className="border-t border-[#1e1e2e] pt-2">
+          {/* Stitch separator */}
+          <div className="border-t-2 border-dashed border-[#C41E3A]/40 my-1" />
+
+          {/* Home team row */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <TeamBadge abbreviation={game.homeTeam.abbreviation} color={game.homeTeam.primaryColor} />
+              <span className={cn(
+                "font-sans text-sm",
+                homeWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
+              )}>
+                {game.homeTeam.city} {game.homeTeam.name}
+              </span>
+            </div>
+            {!isScheduled && (
+              <span className={cn(
+                "font-mono text-2xl font-bold tabular-nums",
+                homeWinning && (isLive || isFinal) ? "text-[#C41E3A]" : "text-[#3D2B1F]/60"
+              )}>
+                {game.homeScore}
+              </span>
+            )}
+          </div>
+
+          {/* Bottom section */}
+          <div className="border-t-2 border-[#8B7355]/30 pt-2">
             {isLive && game.inning !== null && game.inningHalf !== null && (
-              <div className="flex items-center justify-between">
-                <InningTracker
-                  inning={game.inning}
-                  inningHalf={game.inningHalf}
-                  outs={game.outs}
-                />
+              <div className="flex items-center justify-between bg-[#FDF6E3] rounded-sm px-2 py-1">
+                <InningTracker inning={game.inning} inningHalf={game.inningHalf} outs={game.outs} />
                 <LiveIndicator />
               </div>
             )}
             {isFinal && (
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-[10px] text-muted-foreground border-[#1e1e2e]">
-                  Final
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {game.innings.length} innings
+              <div className="flex items-center justify-center gap-3">
+                <span className="h-px flex-1 bg-[#8B7355]/30" />
+                <span className="font-display text-xs uppercase tracking-[0.2em] text-[#3D2B1F]">
+                  FINAL
                 </span>
+                <span className="h-px flex-1 bg-[#8B7355]/30" />
               </div>
             )}
             {isScheduled && (
-              <div className="text-xs text-muted-foreground">
-                <span>{game.venue}</span>
+              <div className="flex items-center justify-center gap-2">
+                <span className="font-mono text-sm text-[#0D2240]">{timeString}</span>
+                <span className="font-display text-xs text-[#8B7355]">vs</span>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }

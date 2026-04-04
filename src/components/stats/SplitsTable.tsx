@@ -2,15 +2,6 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 
 interface SplitRow {
   label: string
@@ -40,7 +31,7 @@ const tabs = [
   { key: "monthly" as const, label: "Por Mes" },
 ]
 
-const columns = ["", "AVG", "OBP", "SLG", "OPS", "AB", "H", "HR", "RBI"]
+const colHeaders = ["", "AVG", "OBP", "SLG", "OPS", "AB", "H", "HR", "RBI"]
 
 function findBestWorst(rows: SplitRow[], key: keyof SplitRow) {
   if (rows.length === 0) return { best: "", worst: "" }
@@ -62,64 +53,75 @@ export function SplitsTable({ splits }: SplitsTableProps) {
   const opsBest = findBestWorst(rows, "ops")
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-1">
+    <div className="space-y-4">
+      {/* Vintage paper tabs */}
+      <div className="flex gap-0 border-b-2 border-[#8B7355]">
         {tabs.map((tab) => (
-          <Button
+          <button
             key={tab.key}
-            variant={activeTab === tab.key ? "default" : "ghost"}
-            size="sm"
             onClick={() => setActiveTab(tab.key)}
+            className={cn(
+              "px-4 py-2 text-xs font-[family-name:var(--font-display)] uppercase tracking-wider transition-colors border-2 border-b-0 rounded-t-sm -mb-[2px]",
+              activeTab === tab.key
+                ? "bg-[#FDF6E3] border-[#8B7355] text-[#0D2240] font-bold"
+                : "bg-[#F5E6C8] border-transparent text-[#8B7355] hover:text-[#3D2B1F]"
+            )}
           >
             {tab.label}
-          </Button>
+          </button>
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-card hover:bg-card border-border">
-              {columns.map((col) => (
-                <TableHead
-                  key={col}
-                  className="text-xs text-muted-foreground uppercase tracking-wider"
-                >
-                  {col}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow
-                key={row.label}
-                className="border-border/50 hover:bg-muted/30"
-              >
-                <TableCell className="font-medium text-sm">
-                  {row.label}
-                </TableCell>
-                {(["avg", "obp", "slg", "ops"] as const).map((k) => (
-                  <TableCell
-                    key={k}
-                    className={cn(
-                      "font-mono text-sm",
-                      k === "ops" && row.label === opsBest.best && "text-green-400",
-                      k === "ops" && row.label === opsBest.worst && "text-red-400"
-                    )}
+      {/* Vintage table */}
+      <div className="bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[#0D2240]">
+                {colHeaders.map((col) => (
+                  <th
+                    key={col}
+                    className="text-[#F5C842] font-[family-name:var(--font-display)] uppercase tracking-wider text-xs px-3 py-2.5 text-left whitespace-nowrap"
                   >
-                    {row[k]}
-                  </TableCell>
+                    {col}
+                  </th>
                 ))}
-                {(["ab", "h", "hr", "rbi"] as const).map((k) => (
-                  <TableCell key={k} className="font-mono text-sm">
-                    {row[k]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => (
+                <tr
+                  key={row.label}
+                  className={cn(
+                    "transition-colors hover:bg-[#EDD9B3] border-b border-[#8B7355]/20",
+                    idx % 2 === 0 ? "bg-[#FDF6E3]" : "bg-[#F5E6C8]"
+                  )}
+                >
+                  <td className="font-[family-name:var(--font-display)] text-sm text-[#3D2B1F] font-medium px-3 py-2 whitespace-nowrap">
+                    {row.label}
+                  </td>
+                  {(["avg", "obp", "slg", "ops"] as const).map((k) => (
+                    <td
+                      key={k}
+                      className={cn(
+                        "font-[family-name:var(--font-mono)] text-sm text-[#3D2B1F] px-3 py-2",
+                        k === "ops" && row.label === opsBest.best && "text-[#006400] font-bold",
+                        k === "ops" && row.label === opsBest.worst && "text-[#C41E3A] font-bold"
+                      )}
+                    >
+                      {row[k]}
+                    </td>
+                  ))}
+                  {(["ab", "h", "hr", "rbi"] as const).map((k) => (
+                    <td key={k} className="font-[family-name:var(--font-mono)] text-sm text-[#3D2B1F] px-3 py-2">
+                      {row[k]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

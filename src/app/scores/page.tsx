@@ -121,21 +121,29 @@ export default function ScoresPage() {
   function handleDateChange(date: Date) {
     setLoading(true);
     setSelectedDate(date);
-    // Simulate loading
     setTimeout(() => setLoading(false), 400);
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Scores</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Resultados y juegos en vivo de la MLB
-        </p>
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      {/* Title */}
+      <div className="text-center">
+        <h1 className="font-heading text-4xl font-bold text-[#F5C842] tracking-wide">
+          RESULTADOS
+        </h1>
+        <div className="flex items-center justify-center gap-3 mt-2">
+          <span className="h-px w-16 bg-[#8B7355]" />
+          <span className="font-display text-xs uppercase tracking-[0.2em] text-[#8B7355]">
+            Major League Baseball
+          </span>
+          <span className="h-px w-16 bg-[#8B7355]" />
+        </div>
       </div>
 
+      {/* Date selector */}
       <DateSelector selectedDate={selectedDate} onDateChange={handleDateChange} />
 
+      {/* Scoreboard */}
       <ScoreBoard games={sortedGames} loading={loading} />
     </div>
   );

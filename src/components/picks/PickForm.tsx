@@ -1,12 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Flame, Send } from "lucide-react"
+import RetroButton from "@/components/vintage/RetroButton"
 import { cn } from "@/lib/utils"
 
 const mockGames = [
@@ -42,35 +37,41 @@ export function PickForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
-    // Submit logic here
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Crear Nuevo Pick</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+      {/* Corner ornaments */}
+      <div className="absolute top-[6px] left-[6px] w-5 h-5 border-t-2 border-l-2 border-[#8B7355] pointer-events-none" />
+      <div className="absolute top-[6px] right-[6px] w-5 h-5 border-t-2 border-r-2 border-[#8B7355] pointer-events-none" />
+      <div className="absolute bottom-[6px] left-[6px] w-5 h-5 border-b-2 border-l-2 border-[#8B7355] pointer-events-none" />
+      <div className="absolute bottom-[6px] right-[6px] w-5 h-5 border-b-2 border-r-2 border-[#8B7355] pointer-events-none" />
+
+      <div className="p-6 space-y-6">
+        <h2 className="font-heading text-2xl font-bold text-[#C41E3A] text-center">
+          <span className="border-b-2 border-[#C41E3A] pb-1">NUEVO PICK</span>
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Game */}
+          {/* Game selector */}
           <div className="space-y-1.5">
-            <Label>Juego</Label>
+            <label className="font-display text-xs uppercase tracking-wider text-[#3D2B1F]">Juego</label>
             <select
               value={game}
               onChange={(e) => setGame(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-10 w-full bg-[#FDF6E3] border-2 border-[#8B7355] rounded-sm px-3 py-2 text-sm font-sans text-[#3D2B1F] focus:outline-none focus:border-[#C41E3A]"
             >
               <option value="">Seleccionar juego...</option>
               {mockGames.map((g) => (
                 <option key={g} value={g}>{g}</option>
               ))}
             </select>
-            {errors.game && <p className="text-xs text-loss">{errors.game}</p>}
+            {errors.game && <p className="text-xs text-[#C62828] font-display">{errors.game}</p>}
           </div>
 
-          {/* Pick Type */}
+          {/* Pick Type - vintage tab buttons */}
           <div className="space-y-1.5">
-            <Label>Tipo de Pick</Label>
+            <label className="font-display text-xs uppercase tracking-wider text-[#3D2B1F]">Tipo de Pick</label>
             <div className="flex flex-wrap gap-2">
               {pickTypes.map((t) => (
                 <button
@@ -78,10 +79,10 @@ export function PickForm() {
                   type="button"
                   onClick={() => setPickType(t)}
                   className={cn(
-                    "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
+                    "font-display text-xs uppercase tracking-wider px-4 py-2 rounded-sm border-2 transition-colors",
                     pickType === t
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border bg-background text-muted-foreground hover:border-primary/50"
+                      ? "bg-[#0D2240] text-[#F5C842] border-[#0D2240]"
+                      : "bg-[#FDF6E3] text-[#8B7355] border-[#8B7355] hover:border-[#0D2240]"
                   )}
                 >
                   {t}
@@ -93,75 +94,74 @@ export function PickForm() {
           {/* Selection + Odds */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label>Seleccion</Label>
-              <Input
+              <label className="font-display text-xs uppercase tracking-wider text-[#3D2B1F]">Seleccion</label>
+              <input
+                type="text"
                 placeholder="ej. Yankees ML"
                 value={selection}
                 onChange={(e) => setSelection(e.target.value)}
+                className="h-10 w-full bg-[#FDF6E3] border-2 border-[#8B7355] rounded-sm px-3 text-sm font-sans text-[#3D2B1F] placeholder:text-[#8B7355]/50 focus:outline-none focus:border-[#C41E3A]"
               />
-              {errors.selection && <p className="text-xs text-loss">{errors.selection}</p>}
+              {errors.selection && <p className="text-xs text-[#C62828] font-display">{errors.selection}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label>Odds (Americano)</Label>
-              <Input
+              <label className="font-display text-xs uppercase tracking-wider text-[#3D2B1F]">Odds</label>
+              <input
+                type="text"
                 placeholder="ej. -150, +120"
                 value={odds}
                 onChange={(e) => setOdds(e.target.value)}
-                className="font-mono"
+                className="h-10 w-full bg-[#FDF6E3] border-2 border-[#8B7355] rounded-sm px-3 text-sm font-mono text-[#3D2B1F] placeholder:text-[#8B7355]/50 focus:outline-none focus:border-[#C41E3A]"
               />
-              {errors.odds && <p className="text-xs text-loss">{errors.odds}</p>}
+              {errors.odds && <p className="text-xs text-[#C62828] font-display">{errors.odds}</p>}
             </div>
           </div>
 
           {/* Stake */}
           <div className="space-y-2">
-            <Label>Stake: {stake}/5</Label>
-            <div className="flex items-center gap-1">
+            <label className="font-display text-xs uppercase tracking-wider text-[#3D2B1F]">Stake</label>
+            <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
                   type="button"
                   onClick={() => setStake(n)}
-                  className="rounded-md p-1 transition-colors hover:bg-primary/10"
+                  className="text-2xl transition-transform hover:scale-110"
                 >
-                  <Flame
-                    className={cn(
-                      "size-6 transition-colors",
-                      n <= stake ? "fill-primary text-primary" : "text-muted-foreground/30"
-                    )}
-                  />
+                  <span className={n <= stake ? "opacity-100" : "opacity-20"}>&#x1F525;</span>
                 </button>
               ))}
+              <span className="font-display text-sm text-[#3D2B1F] ml-2">{stake} unidades</span>
             </div>
           </div>
 
           {/* Analysis */}
           <div className="space-y-1.5">
-            <Label>Analisis</Label>
-            <Textarea
+            <label className="font-display text-xs uppercase tracking-wider text-[#3D2B1F]">Analisis</label>
+            <textarea
               placeholder="Escribe tu analisis detallado del pick (minimo 50 caracteres)..."
               value={analysis}
               onChange={(e) => setAnalysis(e.target.value)}
               rows={5}
+              className="w-full bg-[#FDF6E3] border-2 border-[#8B7355] rounded-sm px-3 py-2 text-sm font-sans text-[#3D2B1F] placeholder:text-[#8B7355]/50 focus:outline-none focus:border-[#C41E3A] resize-none"
             />
-            <div className="flex justify-between text-xs">
+            <div className="flex justify-between">
               {errors.analysis ? (
-                <span className="text-loss">{errors.analysis}</span>
+                <span className="text-xs text-[#C62828] font-display">{errors.analysis}</span>
               ) : (
                 <span />
               )}
-              <span className={cn("text-muted-foreground", analysis.length >= 50 && "text-win")}>
+              <span className={cn("font-mono text-xs", analysis.length >= 50 ? "text-[#2E7D32]" : "text-[#8B7355]")}>
                 {analysis.length}/50 min
               </span>
             </div>
           </div>
 
-          <Button type="submit" className="w-full">
-            <Send className="mr-2 size-4" />
-            Publicar Pick
-          </Button>
+          <RetroButton type="submit" variant="red" size="lg" className="w-full">
+            PUBLICAR PICK
+          </RetroButton>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

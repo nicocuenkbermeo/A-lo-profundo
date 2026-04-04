@@ -1,260 +1,341 @@
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { PickResult } from "@/components/picks/PickResult"
 import { StreakBadge } from "@/components/rachas/StreakBadge"
 import { ScoreCard } from "@/components/scores/ScoreCard"
-import {
-  Flame,
-  ArrowRight,
-  Zap,
-  BarChart3,
-  Users,
-  Target,
-} from "lucide-react"
+import StitchDivider from "@/components/vintage/StitchDivider"
+import RetroButton from "@/components/vintage/RetroButton"
 import { cn } from "@/lib/utils"
 import type { Game } from "@/types/game"
 
 const baseTeam = {
-  id: "", externalId: "", logoUrl: "", primaryColor: "", secondaryColor: "",
+  id: "", externalId: "", logoUrl: "", secondaryColor: "",
 }
 
 const todayGames: Game[] = [
   {
     id: "g1", externalId: "g1", date: "2026-04-04",
-    homeTeam: { ...baseTeam, id: "bos", name: "Red Sox", abbreviation: "BOS", city: "Boston" },
-    awayTeam: { ...baseTeam, id: "nyy", name: "Yankees", abbreviation: "NYY", city: "New York" },
+    homeTeam: { ...baseTeam, id: "bos", name: "Red Sox", abbreviation: "BOS", city: "Boston", primaryColor: "#BD3039" },
+    awayTeam: { ...baseTeam, id: "nyy", name: "Yankees", abbreviation: "NYY", city: "New York", primaryColor: "#003087" },
     status: "LIVE", homeScore: 2, awayScore: 4, inning: 6, inningHalf: "TOP", outs: 1,
     innings: [], startTime: "7:05 PM", venue: "Fenway Park",
   },
   {
     id: "g2", externalId: "g2", date: "2026-04-04",
-    homeTeam: { ...baseTeam, id: "sf", name: "Giants", abbreviation: "SF", city: "San Francisco" },
-    awayTeam: { ...baseTeam, id: "lad", name: "Dodgers", abbreviation: "LAD", city: "Los Angeles" },
+    homeTeam: { ...baseTeam, id: "sf", name: "Giants", abbreviation: "SF", city: "San Francisco", primaryColor: "#FD5A1E" },
+    awayTeam: { ...baseTeam, id: "lad", name: "Dodgers", abbreviation: "LAD", city: "Los Angeles", primaryColor: "#005A9C" },
     status: "SCHEDULED", homeScore: 0, awayScore: 0, inning: null, inningHalf: null, outs: 0,
     innings: [], startTime: "9:45 PM", venue: "Oracle Park",
   },
   {
     id: "g3", externalId: "g3", date: "2026-04-04",
-    homeTeam: { ...baseTeam, id: "tex", name: "Rangers", abbreviation: "TEX", city: "Texas" },
-    awayTeam: { ...baseTeam, id: "hou", name: "Astros", abbreviation: "HOU", city: "Houston" },
+    homeTeam: { ...baseTeam, id: "tex", name: "Rangers", abbreviation: "TEX", city: "Texas", primaryColor: "#C0111F" },
+    awayTeam: { ...baseTeam, id: "hou", name: "Astros", abbreviation: "HOU", city: "Houston", primaryColor: "#002D62" },
     status: "FINAL", homeScore: 3, awayScore: 5, inning: 9, inningHalf: null, outs: 0,
     innings: [], startTime: "8:10 PM", venue: "Globe Life Field",
   },
   {
     id: "g4", externalId: "g4", date: "2026-04-04",
-    homeTeam: { ...baseTeam, id: "nym", name: "Mets", abbreviation: "NYM", city: "New York" },
-    awayTeam: { ...baseTeam, id: "atl", name: "Braves", abbreviation: "ATL", city: "Atlanta" },
+    homeTeam: { ...baseTeam, id: "nym", name: "Mets", abbreviation: "NYM", city: "New York", primaryColor: "#002D72" },
+    awayTeam: { ...baseTeam, id: "atl", name: "Braves", abbreviation: "ATL", city: "Atlanta", primaryColor: "#CE1141" },
     status: "LIVE", homeScore: 1, awayScore: 3, inning: 4, inningHalf: "BOTTOM", outs: 2,
     innings: [], startTime: "7:10 PM", venue: "Citi Field",
   },
   {
     id: "g5", externalId: "g5", date: "2026-04-04",
-    homeTeam: { ...baseTeam, id: "mil", name: "Brewers", abbreviation: "MIL", city: "Milwaukee" },
-    awayTeam: { ...baseTeam, id: "chc", name: "Cubs", abbreviation: "CHC", city: "Chicago" },
+    homeTeam: { ...baseTeam, id: "mil", name: "Brewers", abbreviation: "MIL", city: "Milwaukee", primaryColor: "#12284B" },
+    awayTeam: { ...baseTeam, id: "chc", name: "Cubs", abbreviation: "CHC", city: "Chicago", primaryColor: "#0E3386" },
     status: "SCHEDULED", homeScore: 0, awayScore: 0, inning: null, inningHalf: null, outs: 0,
     innings: [], startTime: "7:40 PM", venue: "American Family Field",
   },
   {
     id: "g6", externalId: "g6", date: "2026-04-04",
-    homeTeam: { ...baseTeam, id: "bal", name: "Orioles", abbreviation: "BAL", city: "Baltimore" },
-    awayTeam: { ...baseTeam, id: "tb", name: "Rays", abbreviation: "TB", city: "Tampa Bay" },
+    homeTeam: { ...baseTeam, id: "bal", name: "Orioles", abbreviation: "BAL", city: "Baltimore", primaryColor: "#DF4601" },
+    awayTeam: { ...baseTeam, id: "tb", name: "Rays", abbreviation: "TB", city: "Tampa Bay", primaryColor: "#092C5C" },
     status: "FINAL", homeScore: 6, awayScore: 2, inning: 9, inningHalf: null, outs: 0,
     innings: [], startTime: "7:05 PM", venue: "Camden Yards",
   },
 ]
 
 const featuredPicks = [
-  {
-    id: "1", tipster: "Carlos Rivera", initials: "CR",
-    selection: "Yankees ML", odds: "-135", pickType: "MONEYLINE",
-    result: "WIN", profit: 2.96, streak: 7,
-  },
-  {
-    id: "2", tipster: "Maria Lopez", initials: "ML",
-    selection: "Dodgers -1.5", odds: "+110", pickType: "RUNLINE",
-    result: "WIN", profit: 3.30, streak: 4,
-  },
-  {
-    id: "3", tipster: "Ana Gutierrez", initials: "AG",
-    selection: "Contreras 2+ hits", odds: "+180", pickType: "PROP",
-    result: "PENDING", profit: 0, streak: 2,
-  },
+  { id: "1", tipster: "El Profeta", emoji: "\u26be", selection: "Yankees ML", odds: "-135", pickType: "MONEYLINE", result: "WIN", profit: 2.96, streak: 8 },
+  { id: "2", tipster: "BatFlip King", emoji: "\ud83d\udc51", selection: "Dodgers -1.5", odds: "+110", pickType: "RUNLINE", result: "WIN", profit: 3.30, streak: 5 },
+  { id: "3", tipster: "El Zurdo", emoji: "\ud83e\udde4", selection: "Contreras 2+ hits", odds: "+180", pickType: "PROP", result: "PENDING", profit: 0, streak: 2 },
 ]
 
 const topStreakers = [
-  { name: "Carlos Rivera", initials: "CR", streak: 7, winPct: 71.4 },
-  { name: "Maria Lopez", initials: "ML", streak: 4, winPct: 63.3 },
-  { name: "Ana Gutierrez", initials: "AG", streak: 3, winPct: 60.0 },
+  { name: "El Profeta", emoji: "\u26be", streak: 8, winPct: 74.3 },
+  { name: "BatFlip King", emoji: "\ud83d\udc51", streak: 5, winPct: 67.7 },
+  { name: "La M\u00e1quina", emoji: "\u2699\ufe0f", streak: 3, winPct: 65.5 },
 ]
 
-const trendHighlights = [
-  { label: "BAL Orioles", stat: "8-2 L10", detail: "+22 run diff", positive: true },
-  { label: "Gerrit Cole", stat: "1.89 ERA", detail: "11.2 K/9", positive: true },
-  { label: "COL Over", stat: "68%", detail: "Mas carreras en la liga", positive: true },
-  { label: "MIA Under", stat: "71%", detail: "Ofensiva mas fria", positive: false },
+const standings = [
+  { team: "BAL", name: "Orioles", w: 18, l: 8, pct: ".692" },
+  { team: "NYY", name: "Yankees", w: 17, l: 9, pct: ".654" },
+  { team: "LAD", name: "Dodgers", w: 16, l: 10, pct: ".615" },
+  { team: "ATL", name: "Braves", w: 15, l: 11, pct: ".577" },
+  { team: "HOU", name: "Astros", w: 14, l: 12, pct: ".538" },
+]
+
+const battingLeaders = [
+  { name: "J. Soto", team: "NYY", stat: ".348" },
+  { name: "M. Betts", team: "LAD", stat: ".342" },
+  { name: "R. Acuna", team: "ATL", stat: ".335" },
+]
+
+const pitchingLeaders = [
+  { name: "G. Cole", team: "NYY", stat: "1.89" },
+  { name: "S. Strider", team: "ATL", stat: "2.05" },
+  { name: "C. Burnes", team: "BAL", stat: "2.18" },
+]
+
+const bettingLeaders = [
+  { name: "El Profeta", stat: "+38.5u" },
+  { name: "BatFlip King", stat: "+28.3u" },
+  { name: "La M\u00e1quina", stat: "+22.1u" },
+]
+
+const allTeams = [
+  { abbr: "ARI", color: "#A71930" }, { abbr: "ATL", color: "#CE1141" }, { abbr: "BAL", color: "#DF4601" },
+  { abbr: "BOS", color: "#BD3039" }, { abbr: "CHC", color: "#0E3386" }, { abbr: "CHW", color: "#27251F" },
+  { abbr: "CIN", color: "#C6011F" }, { abbr: "CLE", color: "#00385D" }, { abbr: "COL", color: "#33006F" },
+  { abbr: "DET", color: "#0C2340" }, { abbr: "HOU", color: "#002D62" }, { abbr: "KC", color: "#004687" },
+  { abbr: "LAA", color: "#BA0021" }, { abbr: "LAD", color: "#005A9C" }, { abbr: "MIA", color: "#00A3E0" },
+  { abbr: "MIL", color: "#12284B" }, { abbr: "MIN", color: "#002B5C" }, { abbr: "NYM", color: "#002D72" },
+  { abbr: "NYY", color: "#003087" }, { abbr: "OAK", color: "#003831" }, { abbr: "PHI", color: "#E81828" },
+  { abbr: "PIT", color: "#27251F" }, { abbr: "SD", color: "#2F241D" }, { abbr: "SEA", color: "#0C2C56" },
+  { abbr: "SF", color: "#FD5A1E" }, { abbr: "STL", color: "#C41E3A" }, { abbr: "TB", color: "#092C5C" },
+  { abbr: "TEX", color: "#C0111F" }, { abbr: "TOR", color: "#134A8E" }, { abbr: "WSH", color: "#AB0003" },
 ]
 
 export default function HomePage() {
   return (
-    <div className="space-y-16 pb-12">
+    <div className="space-y-0 pb-12">
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center">
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-            A LO <span className="text-primary">PROFUNDO</span>
+      <section className="relative bg-gradient-to-b from-[#0D2240] to-[#162d4d] py-20 overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, #FDF6E3 20px, #FDF6E3 21px)" }} />
+        </div>
+        <div className="relative mx-auto max-w-5xl px-4 text-center">
+          <h1 className="font-heading text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-none">
+            <span className="text-[#F5C842]">A LO</span>{" "}
+            <span className="text-[#C41E3A]">PROFUNDO</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
-            Scores en vivo, estadisticas avanzadas, picks de expertos y rachas de tipsters. Todo lo que necesitas para el beisbol MLB.
+          <p className="mx-auto mt-4 max-w-xl font-display text-lg text-[#8FBCE6] tracking-wider">
+            Tu fuente de b\u00e9isbol profundo
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link href="/scores">
-              <Button size="lg">
-                <Zap className="mr-2 size-4" />
-                Ver Scores
-              </Button>
+              <RetroButton variant="red" size="lg">VER SCORES</RetroButton>
             </Link>
             <Link href="/picks">
-              <Button variant="outline" size="lg">
-                <Target className="mr-2 size-4" />
-                Ver Picks
-              </Button>
+              <RetroButton variant="gold" size="lg">VER PICKS</RetroButton>
             </Link>
           </div>
         </div>
       </section>
 
+      <StitchDivider className="my-0" />
+
       {/* Today's games */}
-      <section className="mx-auto max-w-5xl px-4 space-y-4">
+      <section className="mx-auto max-w-5xl px-4 py-10 space-y-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Juegos de Hoy</h2>
-          <Link href="/scores" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-            Ver todos <ArrowRight className="size-3.5" />
+          <h2 className="font-heading text-2xl font-bold text-[#F5C842]">JUEGOS DE HOY</h2>
+          <Link href="/scores" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
+            Ver todos &rarr;
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <p className="font-display text-sm text-[#8B7355]">Abril 4, 2026</p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {todayGames.map((game) => (
             <ScoreCard key={game.id} game={game} />
           ))}
         </div>
       </section>
 
-      {/* Featured picks */}
-      <section className="mx-auto max-w-5xl px-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Picks Destacados</h2>
-          <Link href="/picks" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-            Ver todos <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {featuredPicks.map((p) => (
-            <Link key={p.id} href={`/picks/${p.id}`}>
-              <Card className="transition-colors hover:ring-primary/20 h-full">
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
-                      {p.initials}
+      <StitchDivider />
+
+      {/* Two column: Featured picks + Standings */}
+      <section className="mx-auto max-w-5xl px-4 py-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+          {/* Featured picks - 3 cols */}
+          <div className="lg:col-span-3 space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold text-[#F5C842]">PICKS DESTACADOS</h2>
+              <Link href="/picks" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
+                Ver todos &rarr;
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {featuredPicks.map((p) => (
+                <Link key={p.id} href={`/picks/${p.id}`} className="block">
+                  <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm p-4 hover:-translate-y-[1px] hover:shadow-[6px_6px_0px_#5C4A32] transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#0D2240] text-base border border-[#8B7355]">
+                        {p.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-heading font-bold text-sm text-[#3D2B1F]">{p.tipster}</span>
+                          {p.streak > 0 && (
+                            <span className="font-display text-[10px] text-[#C41E3A]">&#x1F525; x{p.streak}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="bg-[#0D2240] text-[#F5C842] font-display text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-sm">
+                            {p.pickType}
+                          </span>
+                          <span className="font-sans font-bold text-sm text-[#3D2B1F]">{p.selection}</span>
+                          <span className="font-mono text-xs text-[#8B7355]">({p.odds})</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <PickResult result={p.result} size="sm" />
+                        <span className={cn(
+                          "font-mono text-xs font-bold",
+                          p.profit > 0 ? "text-[#2E7D32]" : p.profit < 0 ? "text-[#C62828]" : "text-[#8B7355]"
+                        )}>
+                          {p.profit > 0 ? "+" : ""}{p.profit.toFixed(2)}u
+                        </span>
+                      </div>
                     </div>
-                    <span className="font-semibold text-sm">{p.tipster}</span>
-                    {p.streak > 0 && (
-                      <span className="inline-flex items-center gap-0.5 text-xs text-primary">
-                        <Flame className="size-3 fill-primary text-primary" />
-                        {p.streak}
-                      </span>
-                    )}
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary" className="bg-blue-500/15 text-blue-400 border-blue-500/20 text-[10px]">
-                      {p.pickType}
-                    </Badge>
-                    <span className="font-semibold text-sm">{p.selection}</span>
-                    <span className="font-mono text-xs text-muted-foreground">({p.odds})</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <PickResult result={p.result} size="sm" />
-                    <span className={cn(
-                      "font-mono text-sm font-semibold",
-                      p.profit > 0 ? "text-win" : p.profit < 0 ? "text-loss" : "text-muted-foreground"
-                    )}>
-                      {p.profit > 0 ? "+" : ""}{p.profit.toFixed(2)}u
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Mini standings - 2 cols */}
+          <div className="lg:col-span-2 space-y-5">
+            <h2 className="font-heading text-2xl font-bold text-[#F5C842]">CLASIFICACI\u00d3N</h2>
+            <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+              <div className="absolute top-[5px] left-[5px] w-3 h-3 border-t-2 border-l-2 border-[#8B7355] pointer-events-none" />
+              <div className="absolute top-[5px] right-[5px] w-3 h-3 border-t-2 border-r-2 border-[#8B7355] pointer-events-none" />
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-[#0D2240] text-[#F5C842]">
+                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider">Equipo</th>
+                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-center">W</th>
+                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-center">L</th>
+                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-right">PCT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((s, i) => (
+                    <tr key={s.team} className={cn("border-b border-[#8B7355]/20", i === 0 && "bg-[#F5C842]/10")}>
+                      <td className="px-3 py-2">
+                        <span className="font-heading font-bold text-sm text-[#3D2B1F]">{s.team}</span>
+                        <span className="font-display text-xs text-[#8B7355] ml-1.5">{s.name}</span>
+                      </td>
+                      <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.w}</td>
+                      <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.l}</td>
+                      <td className="px-3 py-2 font-mono text-sm font-bold text-[#3D2B1F] text-right">{s.pct}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Hot streaks */}
-      <section className="mx-auto max-w-5xl px-4 space-y-4">
+      <StitchDivider />
+
+      {/* Rachas en fuego */}
+      <section className="mx-auto max-w-5xl px-4 py-10 space-y-5">
         <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-xl font-bold">
-            <Flame className="size-5 fill-primary text-primary" />
-            Rachas en Fuego
-          </h2>
-          <Link href="/rachas" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-            Leaderboard <ArrowRight className="size-3.5" />
+          <h2 className="font-heading text-2xl font-bold text-[#F5C842]">RACHAS EN FUEGO &#x1F525;</h2>
+          <Link href="/rachas" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
+            Leaderboard &rarr;
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2">
+        <div className="flex gap-4 overflow-x-auto pb-3">
           {topStreakers.map((t) => (
-            <Card key={t.name} className="w-48 shrink-0">
-              <CardContent className="flex flex-col items-center gap-2 py-4">
-                <div className="flex size-12 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary">
-                  {t.initials}
+            <div key={t.name} className="relative w-48 shrink-0 bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+              <div className="flex flex-col items-center gap-2 p-4">
+                <div className="flex size-12 items-center justify-center rounded-full bg-[#0D2240] text-xl border-2 border-[#8B7355]">
+                  {t.emoji}
                 </div>
-                <p className="font-semibold text-sm">{t.name}</p>
+                <p className="font-heading font-bold text-sm text-[#3D2B1F]">{t.name}</p>
                 <StreakBadge count={t.streak} />
-                <span className="text-xs text-muted-foreground">Win% {t.winPct}%</span>
-              </CardContent>
-            </Card>
+                <span className="font-mono text-xs text-[#8B7355]">Win% {t.winPct}%</span>
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Trends */}
-      <section className="mx-auto max-w-5xl px-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-xl font-bold">
-            <BarChart3 className="size-5 text-primary" />
-            Tendencias
-          </h2>
-          <Link href="/trends" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-            Ver todas <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {trendHighlights.map((t) => (
-            <Card key={t.label}>
-              <CardContent className="py-4 text-center">
-                <p className="text-xs text-muted-foreground">{t.label}</p>
-                <p className={cn("text-xl font-bold font-mono", t.positive ? "text-win" : "text-loss")}>
-                  {t.stat}
-                </p>
-                <p className="text-xs text-muted-foreground">{t.detail}</p>
-              </CardContent>
-            </Card>
-          ))}
+      <StitchDivider />
+
+      {/* Leaders section */}
+      <section className="mx-auto max-w-5xl px-4 py-10 space-y-5">
+        <h2 className="font-heading text-2xl font-bold text-[#F5C842]">L\u00cdDERES</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Batting */}
+          <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+            <div className="bg-[#0D2240] text-[#F5C842] px-4 py-2 font-display text-xs uppercase tracking-wider">Bateo (AVG)</div>
+            <div className="p-3 space-y-2">
+              {battingLeaders.map((l, i) => (
+                <div key={l.name} className="flex items-center justify-between">
+                  <span className="font-sans text-sm text-[#3D2B1F]">
+                    <span className="font-mono text-xs text-[#8B7355] mr-2">{i + 1}.</span>
+                    {l.name} <span className="font-display text-[10px] text-[#8B7355]">{l.team}</span>
+                  </span>
+                  <span className="font-mono text-sm font-bold text-[#C41E3A]">{l.stat}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pitching */}
+          <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+            <div className="bg-[#0D2240] text-[#F5C842] px-4 py-2 font-display text-xs uppercase tracking-wider">Pitcheo (ERA)</div>
+            <div className="p-3 space-y-2">
+              {pitchingLeaders.map((l, i) => (
+                <div key={l.name} className="flex items-center justify-between">
+                  <span className="font-sans text-sm text-[#3D2B1F]">
+                    <span className="font-mono text-xs text-[#8B7355] mr-2">{i + 1}.</span>
+                    {l.name} <span className="font-display text-[10px] text-[#8B7355]">{l.team}</span>
+                  </span>
+                  <span className="font-mono text-sm font-bold text-[#2E7D32]">{l.stat}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Betting */}
+          <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+            <div className="bg-[#0D2240] text-[#F5C842] px-4 py-2 font-display text-xs uppercase tracking-wider">Apuestas (Profit)</div>
+            <div className="p-3 space-y-2">
+              {bettingLeaders.map((l, i) => (
+                <div key={l.name} className="flex items-center justify-between">
+                  <span className="font-sans text-sm text-[#3D2B1F]">
+                    <span className="font-mono text-xs text-[#8B7355] mr-2">{i + 1}.</span>
+                    {l.name}
+                  </span>
+                  <span className="font-mono text-sm font-bold text-[#2E7D32]">{l.stat}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="mx-auto max-w-5xl px-4">
-        <Card className="bg-gradient-to-br from-primary/10 via-card to-card border-primary/20">
-          <CardContent className="flex flex-col items-center gap-4 py-10 text-center">
-            <Users className="size-10 text-primary" />
-            <h2 className="text-2xl font-bold">Unete a la Comunidad</h2>
-            <p className="max-w-md text-muted-foreground">
-              Accede a picks premium, compite en el leaderboard y sigue las mejores rachas del beisbol.
-            </p>
-            <Button size="lg">
-              Crear Cuenta Gratis
-            </Button>
-          </CardContent>
-        </Card>
+      <StitchDivider />
+
+      {/* 30 team badges */}
+      <section className="mx-auto max-w-5xl px-4 py-10 space-y-5">
+        <h2 className="font-heading text-xl font-bold text-[#F5C842] text-center">MLB TEAMS</h2>
+        <div className="grid grid-cols-6 sm:grid-cols-6 gap-3 justify-items-center">
+          {allTeams.map((t) => (
+            <div
+              key={t.abbr}
+              className="flex size-11 items-center justify-center rounded-full text-[9px] font-bold text-white border-2 border-[#8B7355] hover:scale-110 transition-transform"
+              style={{ backgroundColor: t.color }}
+            >
+              {t.abbr}
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   )

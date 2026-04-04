@@ -1,15 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { StreakBadge } from "./StreakBadge"
-import { Crown, ArrowUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface LeaderboardEntry {
   rank: number
   name: string
-  initials: string
+  emoji: string
   streak: number
   bestStreak: number
   wins: number
@@ -19,11 +17,7 @@ export interface LeaderboardEntry {
   profit: number
 }
 
-const borderColors: Record<number, string> = {
-  1: "border-l-2 border-l-yellow-500",
-  2: "border-l-2 border-l-gray-400",
-  3: "border-l-2 border-l-amber-700",
-}
+const medals: Record<number, string> = { 1: "\ud83e\udd47", 2: "\ud83e\udd48", 3: "\ud83e\udd49" }
 
 type SortKey = "rank" | "streak" | "bestStreak" | "winPct" | "roi" | "profit"
 
@@ -48,66 +42,70 @@ export function Leaderboard({ data }: { data: LeaderboardEntry[] }) {
   function SortHeader({ label, sKey }: { label: string; sKey: SortKey }) {
     return (
       <button
+        type="button"
         onClick={() => handleSort(sKey)}
-        className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-1 hover:text-[#F5C842] transition-colors font-display text-[10px] uppercase tracking-wider"
       >
         {label}
-        <ArrowUpDown className="size-3" />
+        <span className="text-[8px]">{sortKey === sKey ? (sortAsc ? "\u25b2" : "\u25bc") : "\u25b4\u25be"}</span>
       </button>
     )
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">#</TableHead>
-              <TableHead>Tipster</TableHead>
-              <TableHead><SortHeader label="Racha" sKey="streak" /></TableHead>
-              <TableHead className="hidden sm:table-cell"><SortHeader label="Mejor" sKey="bestStreak" /></TableHead>
-              <TableHead>Record</TableHead>
-              <TableHead><SortHeader label="Win%" sKey="winPct" /></TableHead>
-              <TableHead><SortHeader label="ROI%" sKey="roi" /></TableHead>
-              <TableHead><SortHeader label="Profit" sKey="profit" /></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <table className="w-full text-left">
+          <thead>
+            <tr className="bg-[#0D2240] text-[#F5C842]">
+              <th className="px-3 py-3 font-display text-[10px] uppercase tracking-wider w-12">#</th>
+              <th className="px-3 py-3 font-display text-[10px] uppercase tracking-wider">Tipster</th>
+              <th className="px-3 py-3"><SortHeader label="Racha" sKey="streak" /></th>
+              <th className="px-3 py-3 hidden sm:table-cell"><SortHeader label="Mejor" sKey="bestStreak" /></th>
+              <th className="px-3 py-3 font-display text-[10px] uppercase tracking-wider">Record</th>
+              <th className="px-3 py-3"><SortHeader label="Win%" sKey="winPct" /></th>
+              <th className="px-3 py-3"><SortHeader label="ROI" sKey="roi" /></th>
+              <th className="px-3 py-3"><SortHeader label="Profit" sKey="profit" /></th>
+            </tr>
+          </thead>
+          <tbody>
             {sorted.map((entry) => (
-              <TableRow key={entry.rank} className={cn(borderColors[entry.rank])}>
-                <TableCell className="font-mono font-bold text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    {entry.rank === 1 && <Crown className="size-3.5 text-yellow-500" />}
-                    {entry.rank}
-                  </span>
-                </TableCell>
-                <TableCell>
+              <tr
+                key={entry.rank}
+                className={cn(
+                  "border-b border-[#8B7355]/20 text-[#3D2B1F]",
+                  entry.rank === 1 && "bg-[#F5C842]/10"
+                )}
+              >
+                <td className="px-3 py-3 font-mono font-bold text-sm">
+                  {medals[entry.rank] ?? entry.rank}
+                </td>
+                <td className="px-3 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
-                      {entry.initials}
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#0D2240] text-sm border border-[#8B7355]">
+                      {entry.emoji}
                     </div>
-                    <span className="font-medium text-sm">{entry.name}</span>
+                    <span className="font-heading font-bold text-sm">{entry.name}</span>
                   </div>
-                </TableCell>
-                <TableCell>
-                  {entry.streak > 0 ? <StreakBadge count={entry.streak} size="sm" /> : <span className="text-xs text-muted-foreground">-</span>}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell font-mono text-xs">{entry.bestStreak}</TableCell>
-                <TableCell className="font-mono text-xs">{entry.wins}-{entry.losses}</TableCell>
-                <TableCell className={cn("font-mono text-xs font-medium", entry.winPct >= 55 ? "text-win" : "text-foreground")}>
+                </td>
+                <td className="px-3 py-3">
+                  {entry.streak > 0 ? <StreakBadge count={entry.streak} size="sm" /> : <span className="text-xs text-[#8B7355]">-</span>}
+                </td>
+                <td className="px-3 py-3 hidden sm:table-cell font-mono text-xs">{entry.bestStreak}</td>
+                <td className="px-3 py-3 font-mono text-xs">{entry.wins}-{entry.losses}</td>
+                <td className={cn("px-3 py-3 font-mono text-xs font-bold", entry.winPct >= 55 ? "text-[#2E7D32]" : "text-[#3D2B1F]")}>
                   {entry.winPct.toFixed(1)}%
-                </TableCell>
-                <TableCell className={cn("font-mono text-xs font-medium", entry.roi > 0 ? "text-win" : "text-loss")}>
+                </td>
+                <td className={cn("px-3 py-3 font-mono text-xs font-bold", entry.roi > 0 ? "text-[#2E7D32]" : "text-[#C62828]")}>
                   {entry.roi > 0 ? "+" : ""}{entry.roi.toFixed(1)}%
-                </TableCell>
-                <TableCell className={cn("font-mono text-xs font-medium", entry.profit > 0 ? "text-win" : "text-loss")}>
+                </td>
+                <td className={cn("px-3 py-3 font-mono text-xs font-bold", entry.profit > 0 ? "text-[#2E7D32]" : "text-[#C62828]")}>
                   {entry.profit > 0 ? "+" : ""}{entry.profit.toFixed(1)}u
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   )

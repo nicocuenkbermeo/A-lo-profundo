@@ -1,16 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { PickResult } from "./PickResult"
-import { Flame, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface Pick {
   id: string
-  tipster: { name: string; initials: string; streak: number }
-  game: { away: string; home: string; date: string }
+  tipster: { name: string; emoji: string; streak: number }
+  game: { away: string; home: string; awayColor: string; homeColor: string; date: string }
   pickType: "MONEYLINE" | "RUNLINE" | "TOTAL" | "PROP"
   selection: string
   odds: string
@@ -21,105 +18,103 @@ export interface Pick {
   timestamp: string
 }
 
-function StakeFlames({ stake }: { stake: number }) {
-  return (
-    <span className="inline-flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Flame
-          key={i}
-          className={cn(
-            "size-3.5",
-            i < stake ? "fill-primary text-primary" : "text-muted-foreground/30"
-          )}
-        />
-      ))}
-    </span>
-  )
-}
-
 export function PickCard({ pick }: { pick: Pick }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <Card className="transition-colors hover:ring-primary/20">
-      <CardContent className="space-y-3">
-        {/* Header */}
+    <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+      {/* Corner ornaments */}
+      <div className="absolute top-[6px] left-[6px] w-4 h-4 border-t-2 border-l-2 border-[#8B7355] pointer-events-none" />
+      <div className="absolute top-[6px] right-[6px] w-4 h-4 border-t-2 border-r-2 border-[#8B7355] pointer-events-none" />
+      <div className="absolute bottom-[6px] left-[6px] w-4 h-4 border-b-2 border-l-2 border-[#8B7355] pointer-events-none" />
+      <div className="absolute bottom-[6px] right-[6px] w-4 h-4 border-b-2 border-r-2 border-[#8B7355] pointer-events-none" />
+
+      <div className="p-5 space-y-3">
+        {/* Header: tipster */}
         <div className="flex items-center gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
-            {pick.tipster.initials}
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#0D2240] text-lg border-2 border-[#8B7355]">
+            {pick.tipster.emoji}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm truncate">{pick.tipster.name}</span>
-              {pick.tipster.streak > 0 && (
-                <span className="inline-flex items-center gap-0.5 text-xs text-primary font-medium">
-                  <Flame className="size-3 fill-primary text-primary" />
-                  {pick.tipster.streak}
-                </span>
-              )}
-            </div>
+            <span className="font-heading font-bold text-sm text-[#3D2B1F]">{pick.tipster.name}</span>
           </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">{pick.timestamp}</span>
+          {pick.tipster.streak > 0 && (
+            <span className="inline-flex items-center gap-1 font-display text-xs bg-[#C41E3A]/10 text-[#C41E3A] px-2 py-0.5 rounded-sm">
+              <span>&#x1F525;</span> x{pick.tipster.streak}
+            </span>
+          )}
         </div>
 
-        {/* Game info */}
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-semibold">
-            {pick.game.away} vs {pick.game.home}
-          </span>
-          <span className="text-xs text-muted-foreground">{pick.game.date}</span>
+        {/* Red stitch separator */}
+        <div className="border-t-2 border-dashed border-[#C41E3A]/50" />
+
+        {/* Game line */}
+        <div className="flex items-center gap-2 text-sm">
+          <div
+            className="flex size-7 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white border border-[#8B7355]"
+            style={{ backgroundColor: pick.game.awayColor }}
+          >
+            {pick.game.away}
+          </div>
+          <span className="font-display text-[#8B7355] text-xs">vs</span>
+          <div
+            className="flex size-7 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white border border-[#8B7355]"
+            style={{ backgroundColor: pick.game.homeColor }}
+          >
+            {pick.game.home}
+          </div>
+          <span className="ml-auto font-display text-xs text-[#8B7355]">{pick.game.date}</span>
         </div>
 
         {/* Pick details */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="bg-blue-500/15 text-blue-400 border-blue-500/20 text-[11px]">
+          <span className="bg-[#0D2240] text-[#F5C842] font-display text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-sm">
             {pick.pickType}
-          </Badge>
-          <span className="font-semibold text-sm">{pick.selection}</span>
-          <span className="font-mono text-xs text-muted-foreground">({pick.odds})</span>
+          </span>
+          <span className="font-sans font-bold text-sm text-[#3D2B1F]">{pick.selection}</span>
+          <span className="font-mono text-xs text-[#8B7355]">({pick.odds})</span>
         </div>
 
         {/* Stake */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Stake:</span>
-          <StakeFlames stake={pick.stake} />
+          <span className="inline-flex gap-0.5 text-base">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} className={i < pick.stake ? "opacity-100" : "opacity-20"}>
+                &#x1F525;
+              </span>
+            ))}
+          </span>
+          <span className="font-display text-xs text-[#3D2B1F]">{pick.stake} unidades</span>
         </div>
 
         {/* Analysis */}
-        <div className="text-sm text-muted-foreground">
+        <div className="font-sans text-sm text-[#3D2B1F]/80 italic">
           <p className={cn(!expanded && "line-clamp-2")}>{pick.analysis}</p>
-          {pick.analysis.length > 120 && (
+          {pick.analysis.length > 100 && (
             <button
+              type="button"
               onClick={() => setExpanded(!expanded)}
-              className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              className="mt-1 font-display text-xs text-[#C41E3A] uppercase tracking-wider hover:underline not-italic"
             >
-              {expanded ? (
-                <>
-                  Ver menos <ChevronUp className="size-3" />
-                </>
-              ) : (
-                <>
-                  Ver mas <ChevronDown className="size-3" />
-                </>
-              )}
+              {expanded ? "Leer menos" : "Leer m\u00e1s"}
             </button>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-border pt-3">
+        <div className="flex items-center justify-between border-t-2 border-[#8B7355]/30 pt-3">
           <PickResult result={pick.result} />
           <span
             className={cn(
-              "font-mono text-sm font-semibold",
-              pick.profit > 0 ? "text-win" : pick.profit < 0 ? "text-loss" : "text-muted-foreground"
+              "font-mono text-sm font-bold",
+              pick.profit > 0 ? "text-[#2E7D32]" : pick.profit < 0 ? "text-[#C62828]" : "text-[#8B7355]"
             )}
           >
             {pick.profit > 0 ? "+" : ""}
             {pick.profit.toFixed(2)}u
           </span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

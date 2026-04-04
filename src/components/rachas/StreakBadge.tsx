@@ -1,4 +1,3 @@
-import { Flame } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function StreakBadge({
@@ -12,10 +11,10 @@ export function StreakBadge({
 
   const intensity =
     count >= 10
-      ? "bg-red-500/20 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.3)]"
+      ? "bg-[#C41E3A]/20 text-[#C41E3A] shadow-[0_0_12px_rgba(196,30,58,0.3)]"
       : count >= 6
-        ? "bg-orange-500/20 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.2)]"
-        : "bg-primary/15 text-primary"
+        ? "bg-[#F5C842]/20 text-[#F5C842] shadow-[0_0_8px_rgba(245,200,66,0.2)]"
+        : "bg-[#8B7355]/20 text-[#F5C842]"
 
   const sizeClasses =
     size === "lg"
@@ -24,18 +23,15 @@ export function StreakBadge({
         ? "gap-0.5 px-1.5 py-0.5 text-[10px]"
         : "gap-1 px-2 py-1 text-xs"
 
-  const iconSize = size === "lg" ? "size-5" : size === "sm" ? "size-3" : "size-3.5"
-
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full font-bold transition-all",
+        "inline-flex items-center rounded-sm font-display font-bold uppercase tracking-wider transition-all border border-[#8B7355]/30",
         intensity,
         sizeClasses
       )}
     >
-      <Flame className={cn(iconSize, "fill-current")} />
-      {count}
+      &#x1F525; x{count}
     </span>
   )
 }

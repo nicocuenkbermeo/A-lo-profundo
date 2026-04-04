@@ -1,9 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Search, Filter } from "lucide-react"
 
 const pickTypes = ["Todos", "Moneyline", "Run Line", "Total", "Prop"]
 const results = ["Todos", "Pendiente", "Win", "Loss", "Push"]
@@ -15,64 +12,58 @@ export function PickFilters() {
   const [search, setSearch] = useState("")
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Filter className="size-4" />
-        Filtros
+    <div className="space-y-4">
+      {/* Type filter pills */}
+      <div className="flex flex-wrap gap-2">
+        {pickTypes.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setType(t)}
+            className={`font-display text-xs uppercase tracking-wider px-3 py-1.5 rounded-sm border-2 transition-colors ${
+              type === t
+                ? "bg-[#C41E3A] text-white border-[#C41E3A]"
+                : "bg-[#0D2240] text-[#8FBCE6] border-[#0D2240] hover:border-[#8FBCE6]"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Pick type */}
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Tipo de Pick</Label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+
+      {/* Result filter pills */}
+      <div className="flex flex-wrap gap-2">
+        {results.map((r) => (
+          <button
+            key={r}
+            type="button"
+            onClick={() => setResult(r)}
+            className={`font-display text-xs uppercase tracking-wider px-3 py-1.5 rounded-sm border-2 transition-colors ${
+              result === r
+                ? "bg-[#C41E3A] text-white border-[#C41E3A]"
+                : "bg-[#0D2240] text-[#8FBCE6] border-[#0D2240] hover:border-[#8FBCE6]"
+            }`}
           >
-            {pickTypes.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+            {r}
+          </button>
+        ))}
+      </div>
 
-        {/* Result */}
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Resultado</Label>
-          <select
-            value={result}
-            onChange={(e) => setResult(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            {results.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Date */}
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Fecha</Label>
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="h-9"
-          />
-        </div>
-
-        {/* Search */}
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Buscar tipster</Label>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Nombre..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-9 pl-8"
-            />
-          </div>
-        </div>
+      {/* Date + Search row */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="h-10 w-full bg-[#FDF6E3] border-2 border-[#8B7355] rounded-sm px-3 text-sm font-display text-[#3D2B1F] focus:outline-none focus:border-[#C41E3A]"
+        />
+        <input
+          type="text"
+          placeholder="Buscar tipster..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-10 w-full bg-[#FDF6E3] border-2 border-[#8B7355] rounded-sm px-3 text-sm font-display text-[#3D2B1F] placeholder:text-[#8B7355]/60 focus:outline-none focus:border-[#C41E3A]"
+        />
       </div>
     </div>
   )

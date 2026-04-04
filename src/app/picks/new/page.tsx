@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { PickForm } from "@/components/picks/PickForm"
-import { ChevronRight } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Nuevo Pick",
@@ -10,14 +9,14 @@ export const metadata: Metadata = {
 
 export default function NewPickPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 space-y-4">
+    <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/picks" className="hover:text-foreground transition-colors">
+      <nav className="flex items-center gap-2 font-display text-sm uppercase tracking-wider text-[#8B7355]">
+        <Link href="/picks" className="hover:text-[#F5C842] transition-colors">
           Picks
         </Link>
-        <ChevronRight className="size-3.5" />
-        <span className="text-foreground">Nuevo Pick</span>
+        <span className="text-[#8B7355]/50">&gt;</span>
+        <span className="text-[#FDF6E3]">Nuevo Pick</span>
       </nav>
 
       <PickForm />

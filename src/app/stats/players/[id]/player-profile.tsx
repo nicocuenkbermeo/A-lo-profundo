@@ -1,19 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { StatChart } from "@/components/stats/StatChart"
 import { SplitsTable } from "@/components/stats/SplitsTable"
 
@@ -22,6 +10,7 @@ interface PlayerData {
   name: string
   team: string
   teamFull: string
+  teamColor: string
   position: string
   number: number
   bats: string
@@ -52,6 +41,7 @@ const mockPlayers: Record<string, PlayerData> = {
     name: "Aaron Judge",
     team: "NYY",
     teamFull: "New York Yankees",
+    teamColor: "#003087",
     position: "RF",
     number: 99,
     bats: "R",
@@ -102,7 +92,6 @@ const mockPlayers: Record<string, PlayerData> = {
   },
 }
 
-// Default fallback for any player ID
 function getPlayer(id: string): PlayerData {
   if (mockPlayers[id]) return mockPlayers[id]
   return {
@@ -115,107 +104,151 @@ function getPlayer(id: string): PlayerData {
 export function PlayerProfile({ playerId }: { playerId: string }) {
   const player = getPlayer(playerId)
   const initials = player.name.split(" ").map((n) => n[0]).join("").slice(0, 2)
+  const gameLogHeaders = ["Fecha", "Opp", "AB", "H", "HR", "RBI", "BB", "K", "AVG"]
 
   return (
     <div className="space-y-8">
-      <Link href="/stats/players">
-        <Button variant="ghost" size="sm">
-          <ArrowLeft className="size-4 mr-1" /> Volver
-        </Button>
+      {/* Back link */}
+      <Link
+        href="/stats/players"
+        className="inline-flex items-center gap-1 font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[#C41E3A] hover:text-[#0D2240] transition-colors"
+      >
+        &larr; Volver a Jugadores
       </Link>
 
-      {/* Header */}
-      <div className="flex items-center gap-6">
-        <div className="flex size-20 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-2xl font-bold text-amber-500">
-          {initials}
-        </div>
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-foreground">{player.name}</h1>
-            <Badge variant="outline" className="text-xs">#{player.number}</Badge>
-          </div>
-          <div className="flex items-center gap-3 mt-1">
-            <span className="text-muted-foreground">{player.teamFull}</span>
-            <Badge variant="secondary">{player.position}</Badge>
-            <span className="text-sm text-muted-foreground">
-              Batea: {player.bats} | Lanza: {player.throws}
+      {/* ── Giant Vintage Baseball Card Header ── */}
+      <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[6px_6px_0px_#5C4A32] rounded-sm overflow-hidden">
+        {/* Corner ornaments */}
+        <div className="absolute top-0 left-0 w-6 h-6 border-l-[3px] border-t-[3px] border-[#8B7355]/40 z-10" />
+        <div className="absolute top-0 right-0 w-6 h-6 border-r-[3px] border-t-[3px] border-[#8B7355]/40 z-10" />
+        <div className="absolute bottom-0 left-0 w-6 h-6 border-l-[3px] border-b-[3px] border-[#8B7355]/40 z-10" />
+        <div className="absolute bottom-0 right-0 w-6 h-6 border-r-[3px] border-b-[3px] border-[#8B7355]/40 z-10" />
+
+        {/* Team-colored header band */}
+        <div className="relative h-40 flex items-center gap-6 px-8" style={{ backgroundColor: player.teamColor }}>
+          {/* Photo placeholder */}
+          <div className="relative shrink-0 w-28 h-28 bg-white/10 border-[3px] border-white/20 rounded-sm flex items-center justify-center">
+            <span className="text-white/20 text-5xl font-[family-name:var(--font-mono)] font-bold absolute right-1 bottom-0 leading-none">
+              {player.number}
             </span>
+            <span className="text-white text-4xl font-[family-name:var(--font-heading)] font-bold relative z-10">
+              {initials}
+            </span>
+          </div>
+
+          {/* Player info */}
+          <div>
+            <h1 className="font-[family-name:var(--font-heading)] text-white text-3xl font-bold tracking-tight">
+              {player.name}
+            </h1>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="font-[family-name:var(--font-display)] uppercase text-xs tracking-wider bg-white/20 text-white px-2 py-0.5 rounded-sm">
+                {player.position}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[8px] font-[family-name:var(--font-display)] font-bold border border-white/30"
+                  style={{ backgroundColor: player.teamColor }}
+                >
+                  {player.team}
+                </span>
+                <span className="text-white/80 text-sm font-[family-name:var(--font-sans)]">{player.teamFull}</span>
+              </div>
+              <span className="font-[family-name:var(--font-display)] text-xs text-white/60">
+                Batea: {player.bats} | Lanza: {player.throws}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Season Stats */}
+      {/* ── Season Stat Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {player.seasonStats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="py-0 text-center">
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                {stat.label}
-              </div>
-              <div className="font-mono text-3xl font-bold text-amber-500">
-                {stat.value}
-              </div>
-            </CardContent>
-          </Card>
+          <div
+            key={stat.label}
+            className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm p-4 text-center border-t-4"
+            style={{ borderTopColor: "#F5C842" }}
+          >
+            <div className="font-[family-name:var(--font-display)] text-[10px] uppercase tracking-wider text-[#8B7355]">
+              {stat.label}
+            </div>
+            <div className="font-[family-name:var(--font-mono)] text-4xl font-bold text-[#C41E3A] mt-1">
+              {stat.value}
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Last 15 Games Trend */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Hits en los últimos 15 juegos</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* ── Trend Chart ── */}
+      <div className="bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+        <div className="bg-[#0D2240] px-4 py-2.5">
+          <h2 className="font-[family-name:var(--font-display)] uppercase tracking-wider text-sm text-[#F5C842]">
+            Hits en los ultimos 15 juegos
+          </h2>
+        </div>
+        <div className="p-4">
           <StatChart data={player.last15} type="line" />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Game Log */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Registro de juegos recientes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-card hover:bg-card border-border">
-                  {["Fecha", "Opp", "AB", "H", "HR", "RBI", "BB", "K", "AVG"].map((h) => (
-                    <TableHead key={h} className="text-xs text-muted-foreground uppercase tracking-wider">
-                      {h}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {player.gameLog.map((g, i) => (
-                  <TableRow key={i} className="border-border/50 hover:bg-muted/30">
-                    <TableCell className="text-sm">{g.date}</TableCell>
-                    <TableCell className="text-sm">{g.opp}</TableCell>
-                    <TableCell className="font-mono text-sm">{g.ab}</TableCell>
-                    <TableCell className={cn("font-mono text-sm", g.h >= 3 && "text-green-400 font-semibold")}>{g.h}</TableCell>
-                    <TableCell className={cn("font-mono text-sm", g.hr > 0 && "text-amber-500 font-semibold")}>{g.hr}</TableCell>
-                    <TableCell className="font-mono text-sm">{g.rbi}</TableCell>
-                    <TableCell className="font-mono text-sm">{g.bb}</TableCell>
-                    <TableCell className="font-mono text-sm">{g.k}</TableCell>
-                    <TableCell className="font-mono text-sm font-semibold">{g.avg}</TableCell>
-                  </TableRow>
+      {/* ── Game Log ── */}
+      <div className="bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+        <div className="bg-[#0D2240] px-4 py-2.5">
+          <h2 className="font-[family-name:var(--font-display)] uppercase tracking-wider text-sm text-[#F5C842]">
+            Registro de juegos recientes
+          </h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[#0D2240]/80">
+                {gameLogHeaders.map((h) => (
+                  <th
+                    key={h}
+                    className="text-[#F5C842] font-[family-name:var(--font-display)] uppercase tracking-wider text-xs px-3 py-2.5 text-left whitespace-nowrap"
+                  >
+                    {h}
+                  </th>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+              </tr>
+            </thead>
+            <tbody>
+              {player.gameLog.map((g, i) => (
+                <tr
+                  key={i}
+                  className={cn(
+                    "hover:bg-[#EDD9B3] border-b border-[#8B7355]/20 transition-colors",
+                    i % 2 === 0 ? "bg-[#FDF6E3]" : "bg-[#F5E6C8]"
+                  )}
+                >
+                  <td className="font-[family-name:var(--font-display)] text-sm text-[#3D2B1F] px-3 py-2">{g.date}</td>
+                  <td className="font-[family-name:var(--font-display)] text-sm text-[#8B7355] px-3 py-2">{g.opp}</td>
+                  <td className="font-[family-name:var(--font-mono)] text-sm text-[#3D2B1F] px-3 py-2">{g.ab}</td>
+                  <td className={cn("font-[family-name:var(--font-mono)] text-sm px-3 py-2", g.h >= 3 ? "text-[#006400] font-bold" : "text-[#3D2B1F]")}>{g.h}</td>
+                  <td className={cn("font-[family-name:var(--font-mono)] text-sm px-3 py-2", g.hr > 0 ? "text-[#C41E3A] font-bold" : "text-[#3D2B1F]")}>{g.hr}</td>
+                  <td className="font-[family-name:var(--font-mono)] text-sm text-[#3D2B1F] px-3 py-2">{g.rbi}</td>
+                  <td className="font-[family-name:var(--font-mono)] text-sm text-[#3D2B1F] px-3 py-2">{g.bb}</td>
+                  <td className="font-[family-name:var(--font-mono)] text-sm text-[#3D2B1F] px-3 py-2">{g.k}</td>
+                  <td className="font-[family-name:var(--font-mono)] text-sm font-bold text-[#0D2240] px-3 py-2">{g.avg}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      {/* Splits */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Splits</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* ── Splits ── */}
+      <div className="bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+        <div className="bg-[#0D2240] px-4 py-2.5">
+          <h2 className="font-[family-name:var(--font-display)] uppercase tracking-wider text-sm text-[#F5C842]">
+            Splits
+          </h2>
+        </div>
+        <div className="p-4">
           <SplitsTable splits={player.splits} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
