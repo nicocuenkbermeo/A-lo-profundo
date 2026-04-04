@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Enums ──────────────────────────────────────────────
+
+enum Role {
+  USER
+  TIPSTER
+  ADMIN
+}
+
+enum League {
+  AL
+  NL
+}
+
+enum Division {
+  EAST
+  CENTRAL
+  WEST
+}
+
+enum Bats {
+  L
+  R
+  S
+}
+
+enum Throws {
+  L
+  R
+}
+
+enum GameStatus {
+  SCHEDULED
+  LIVE
+  FINAL
+  POSTPONED
+  CANCELLED
+}
+
+enum InningHalf {
+  TOP
+  BOTTOM
+}
+
+enum PickType {
+  MONEYLINE
+  RUNLINE
+  TOTAL
+  PROP
+  PARLAY
+}
+
+enum PickResult {
+  PENDING
+  WIN
+  LOSS
+  PUSH
+  VOID
+}
+
+enum StreakType {
+  CURRENT
+  BEST
+}
+
+// ── Models ─────────────────────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  password    String
+  displayName String
+  avatar      String?
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  picks   Pick[]
+  streaks Streak[]
+
+  @@index([role])
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  name           String
+  abbreviation   String   @unique @db.VarChar(3)
+  city           String
+  league         League
+  division       Division
+  logoUrl        String
+  primaryColor   String
+  secondaryColor String
+
+  homeGames Game[]   @relation("HomeTeam")
+  awayGames Game[]   @relation("AwayTeam")
+  players   Player[]
+}
+
+model Player {
+  id         String  @id @default(cuid())
+  externalId String  @unique
+  firstName  String
+  lastName   String
+  teamId     String
+  position   String
+  bats       Bats
+  throws_    Throws  @map("throws")
+  number     Int
+  photoUrl   String?
+  isActive   Boolean @default(true)
+
+  team Team @relation(fields: [teamId], references: [id])
+
+  @@index([teamId])
+  @@index([position])
+}
+
+model Game {
+  id         String      @id @default(cuid())
+  externalId String      @unique
+  homeTeamId String
+  awayTeamId String
+  date       DateTime
+  status     GameStatus  @default(SCHEDULED)
+  homeScore  Int         @default(0)
+  awayScore  Int         @default(0)
+  inning     Int?
+  inningHalf InningHalf?
+  outs       Int         @default(0)
+  startTime  String
+  venue      String
+
+  homeTeam Team          @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam Team          @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  innings  GameInning[]
+  picks    Pick[]
+  lines    BettingLine[]
+
+  @@index([date])
+  @@index([status])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+}
+
+model GameInning {
+  id           String @id @default(cuid())
+  gameId       String
+  inningNumber Int
+  homeRuns     Int
+  awayRuns     Int
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@unique([gameId, inningNumber])
+}
+
+model Pick {
+  id         String     @id @default(cuid())
+  tipsterId  String
+  gameId     String
+  pickType   PickType
+  selection  String
+  odds       Float
+  stake      Int
+  analysis   String     @db.Text
+  result     PickResult @default(PENDING)
+  profit     Float      @default(0)
+  createdAt  DateTime   @default(now())
+  resolvedAt DateTime?
+
+  tipster User @relation(fields: [tipsterId], references: [id])
+  game    Game @relation(fields: [gameId], references: [id])
+
+  @@index([tipsterId, result])
+  @@index([gameId])
+  @@index([createdAt])
+}
+
+model Streak {
+  id        String     @id @default(cuid())
+  userId    String
+  type      StreakType
+  count     Int        @default(0)
+  startDate DateTime?
+  endDate   DateTime?
+  isActive  Boolean    @default(true)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model BettingLine {
+  id              String   @id @default(cuid())
+  gameId          String
+  source          String
+  homeMoneyline   Float
+  awayMoneyline   Float
+  runLineSpread   Float    @default(-1.5)
+  runLineHome     Float
+  runLineAway     Float
+  totalLine       Float
+  overOdds        Float
+  underOdds       Float
+  updatedAt       DateTime @updatedAt
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@index([gameId])
+}
