@@ -15,9 +15,6 @@ export async function GET(
         awayTeam: true,
         innings: { orderBy: { inningNumber: "asc" } },
         lines: true,
-        picks: {
-          include: { tipster: { select: { id: true, displayName: true, avatar: true } } },
-        },
       },
     });
 

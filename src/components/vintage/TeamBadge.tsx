@@ -1,40 +1,47 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface TeamBadgeProps {
   abbreviation: string;
-  primaryColor: string;
-  secondaryColor: string;
-  size?: "sm" | "default" | "lg";
+  primaryColor?: string;
+  secondaryColor?: string;
+  size?: "sm" | "default" | "lg" | "xl";
 }
 
 const sizeStyles = {
-  sm: "w-8 h-8 text-xs",
-  default: "w-10 h-10 text-sm",
-  lg: "w-14 h-14 text-base",
+  sm: "w-8 h-8",
+  default: "w-12 h-12",
+  lg: "w-16 h-16",
+  xl: "w-24 h-24",
+};
+
+const sizePx = {
+  sm: 32,
+  default: 48,
+  lg: 64,
+  xl: 96,
 };
 
 export default function TeamBadge({
   abbreviation,
-  primaryColor,
-  secondaryColor,
   size = "default",
 }: TeamBadgeProps) {
+  const px = sizePx[size];
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center font-bold text-white shrink-0",
-        "bg-gradient-to-b from-white/20 via-transparent to-black/20",
-        "shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)]",
+        "relative shrink-0 flex items-center justify-center",
         sizeStyles[size]
       )}
-      style={{
-        backgroundColor: primaryColor,
-        borderWidth: 3,
-        borderStyle: "solid",
-        borderColor: secondaryColor,
-      }}
+      title={abbreviation}
     >
-      {abbreviation}
+      <Image
+        src={`/logos/${abbreviation}.png`}
+        alt={abbreviation}
+        width={px}
+        height={px}
+        className="object-contain drop-shadow-[2px_2px_0px_rgba(0,0,0,0.4)]"
+      />
     </div>
   );
 }

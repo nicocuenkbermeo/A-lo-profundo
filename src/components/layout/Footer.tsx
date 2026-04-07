@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -9,13 +10,16 @@ export function Footer() {
       </div>
 
       {/* Logo */}
-      <div className="text-center mb-2">
-        <span className="font-heading text-[#F5C842] text-2xl font-bold tracking-tight">
-          A LO{" "}
-        </span>
-        <span className="font-heading text-[#C41E3A] text-2xl font-bold italic">
-          PROFUNDO
-        </span>
+      <div className="flex flex-col items-center gap-2 mb-2">
+        <Image src="/logo.png" alt="A lo Profundo" width={80} height={80} className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)]" />
+        <div>
+          <span className="font-heading text-[#F5C842] text-2xl font-black tracking-tight">
+            A LO{" "}
+          </span>
+          <span className="font-heading text-[#C41E3A] text-2xl font-black italic">
+            PROFUNDO
+          </span>
+        </div>
       </div>
 
       {/* Tagline */}

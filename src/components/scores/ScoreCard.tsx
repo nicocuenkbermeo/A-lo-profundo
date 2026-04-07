@@ -4,21 +4,11 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LiveIndicator } from "./LiveIndicator";
 import { InningTracker } from "./InningTracker";
+import TeamBadge from "@/components/vintage/TeamBadge";
 import type { Game } from "@/types/game";
 
 interface ScoreCardProps {
   game: Game;
-}
-
-function TeamBadge({ abbreviation, color }: { abbreviation: string; color: string }) {
-  return (
-    <div
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white border-2 border-[#8B7355]"
-      style={{ backgroundColor: color }}
-    >
-      {abbreviation}
-    </div>
-  );
 }
 
 function StatusTag({ status }: { status: Game["status"] }) {
@@ -62,11 +52,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
   const homeWinning = game.homeScore > game.awayScore;
   const awayWinning = game.awayScore > game.homeScore;
 
-  const startDate = new Date(game.startTime);
-  const timeString = startDate.toLocaleTimeString("es-MX", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const timeString = game.startTime;
 
   return (
     <Link href={`/scores/${game.id}`} className="block group">
@@ -95,7 +81,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
           {/* Away team row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <TeamBadge abbreviation={game.awayTeam.abbreviation} color={game.awayTeam.primaryColor} />
+              <TeamBadge abbreviation={game.awayTeam.abbreviation} />
               <span className={cn(
                 "font-sans text-sm",
                 awayWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
@@ -119,7 +105,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
           {/* Home team row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <TeamBadge abbreviation={game.homeTeam.abbreviation} color={game.homeTeam.primaryColor} />
+              <TeamBadge abbreviation={game.homeTeam.abbreviation} />
               <span className={cn(
                 "font-sans text-sm",
                 homeWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"

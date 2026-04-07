@@ -1,150 +1,140 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { DateSelector } from "@/components/scores/DateSelector";
-import { ScoreBoard } from "@/components/scores/ScoreBoard";
-import type { Game, GameInning } from "@/types/game";
+import { ScoreCard } from "@/components/scores/ScoreCard";
+import { getTodaysGames } from "@/lib/mock-mlb";
+import type { Game } from "@/types/game";
 
-function generateMockGames(date: Date): Game[] {
-  const dateStr = date.toISOString().split("T")[0];
-  const today = new Date();
-  const isToday =
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate();
-  const isPast = date < today && !isToday;
-
-  const teams = [
-    { id: "nyy", name: "Yankees", abbreviation: "NYY", city: "New York", logoUrl: "", primaryColor: "#003087", secondaryColor: "#E4002C" },
-    { id: "bos", name: "Red Sox", abbreviation: "BOS", city: "Boston", logoUrl: "", primaryColor: "#BD3039", secondaryColor: "#0C2340" },
-    { id: "lad", name: "Dodgers", abbreviation: "LAD", city: "Los Angeles", logoUrl: "", primaryColor: "#005A9C", secondaryColor: "#EF3E42" },
-    { id: "sfg", name: "Giants", abbreviation: "SF", city: "San Francisco", logoUrl: "", primaryColor: "#FD5A1E", secondaryColor: "#27251F" },
-    { id: "hou", name: "Astros", abbreviation: "HOU", city: "Houston", logoUrl: "", primaryColor: "#002D62", secondaryColor: "#EB6E1F" },
-    { id: "tex", name: "Rangers", abbreviation: "TEX", city: "Texas", logoUrl: "", primaryColor: "#003278", secondaryColor: "#C0111F" },
-    { id: "atl", name: "Braves", abbreviation: "ATL", city: "Atlanta", logoUrl: "", primaryColor: "#CE1141", secondaryColor: "#13274F" },
-    { id: "nym", name: "Mets", abbreviation: "NYM", city: "New York", logoUrl: "", primaryColor: "#002D72", secondaryColor: "#FF5910" },
-    { id: "chc", name: "Cubs", abbreviation: "CHC", city: "Chicago", logoUrl: "", primaryColor: "#0E3386", secondaryColor: "#CC3433" },
-    { id: "stl", name: "Cardinals", abbreviation: "STL", city: "St. Louis", logoUrl: "", primaryColor: "#C41E3A", secondaryColor: "#0C2340" },
-  ];
-
-  const matchups = [
-    [0, 1], [2, 3], [4, 5], [6, 7], [8, 9],
-  ];
-
-  return matchups.map(([away, home], idx) => {
-    const gameId = `${dateStr}-${idx}`;
-    const innings: GameInning[] = [];
-    let homeScore = 0;
-    let awayScore = 0;
-
-    const completedInnings = isPast ? 9 : isToday && idx < 2 ? Math.floor(Math.random() * 7) + 2 : 0;
-
-    for (let i = 1; i <= completedInnings; i++) {
-      const ar = Math.random() < 0.35 ? Math.floor(Math.random() * 3) + 1 : 0;
-      const hr = Math.random() < 0.35 ? Math.floor(Math.random() * 3) + 1 : 0;
-      awayScore += ar;
-      homeScore += hr;
-      innings.push({ inningNumber: i, awayRuns: ar, homeRuns: hr });
+// Simulate live updates: increment LIVE games' scores and outs occasionally
+function simulateLiveTick(games: Game[]): Game[] {
+  return games.map((g) => {
+    if (g.status !== "LIVE") return g;
+    // 25% chance a run scores, 60% chance outs/inning advance
+    const newGame = { ...g };
+    if (Math.random() < 0.25) {
+      if (Math.random() > 0.5) newGame.homeScore = g.homeScore + 1;
+      else newGame.awayScore = g.awayScore + 1;
     }
-
-    let status: Game["status"];
-    let inning: number | null = null;
-    let inningHalf: Game["inningHalf"] = null;
-    let outs = 0;
-
-    if (isPast || (isToday && idx >= 2 && idx < 4)) {
-      status = "FINAL";
-      if (innings.length === 0) {
-        for (let i = 1; i <= 9; i++) {
-          const ar = Math.random() < 0.35 ? Math.floor(Math.random() * 3) + 1 : 0;
-          const hr = Math.random() < 0.35 ? Math.floor(Math.random() * 3) + 1 : 0;
-          awayScore += ar;
-          homeScore += hr;
-          innings.push({ inningNumber: i, awayRuns: ar, homeRuns: hr });
+    if (Math.random() < 0.6) {
+      const newOuts = (g.outs ?? 0) + 1;
+      if (newOuts >= 3) {
+        newGame.outs = 0;
+        if (g.inningHalf === "TOP") {
+          newGame.inningHalf = "BOTTOM";
+        } else {
+          newGame.inningHalf = "TOP";
+          newGame.inning = (g.inning ?? 1) + 1;
         }
+      } else {
+        newGame.outs = newOuts;
       }
-    } else if (isToday && idx < 2) {
-      status = "LIVE";
-      inning = completedInnings + 1;
-      inningHalf = Math.random() > 0.5 ? "TOP" : "BOTTOM";
-      outs = Math.floor(Math.random() * 3);
-    } else {
-      status = "SCHEDULED";
     }
-
-    const startHour = 13 + idx * 2;
-
-    return {
-      id: gameId,
-      externalId: gameId,
-      homeTeam: teams[home],
-      awayTeam: teams[away],
-      date: dateStr,
-      status,
-      homeScore,
-      awayScore,
-      inning,
-      inningHalf,
-      outs,
-      startTime: `${dateStr}T${String(startHour).padStart(2, "0")}:10:00Z`,
-      venue: "Stadium",
-      innings,
-      lines: [
-        {
-          id: `line-${gameId}`,
-          source: "DraftKings",
-          homeMoneyline: homeScore > awayScore ? -150 : 130,
-          awayMoneyline: awayScore > homeScore ? -140 : 120,
-          runLineSpread: 1.5,
-          runLineHome: -110,
-          runLineAway: -110,
-          totalLine: 8.5,
-          overOdds: -110,
-          underOdds: -110,
-        },
-      ],
-    };
+    return newGame;
   });
 }
 
 export default function ScoresPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [loading, setLoading] = useState(false);
+  const [games, setGames] = useState<Game[]>(() => getTodaysGames());
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  const games = useMemo(() => generateMockGames(selectedDate), [selectedDate]);
+  const isToday = useMemo(() => {
+    const today = new Date();
+    return (
+      selectedDate.getFullYear() === today.getFullYear() &&
+      selectedDate.getMonth() === today.getMonth() &&
+      selectedDate.getDate() === today.getDate()
+    );
+  }, [selectedDate]);
+
+  const refresh = useCallback(() => {
+    if (!isToday) {
+      // Past/future dates: same schedule but no live ticks
+      setGames(getTodaysGames());
+    } else {
+      setGames((prev) => simulateLiveTick(prev));
+    }
+    setLastUpdate(new Date());
+  }, [isToday]);
+
+  // Auto-refresh every 15 seconds for live games
+  useEffect(() => {
+    if (!isToday) return;
+    const interval = setInterval(refresh, 15000);
+    return () => clearInterval(interval);
+  }, [isToday, refresh]);
+
+  // Reset when date changes
+  useEffect(() => {
+    setGames(getTodaysGames());
+    setLastUpdate(new Date());
+  }, [selectedDate]);
 
   const sortedGames = useMemo(() => {
     const order: Record<string, number> = { LIVE: 0, SCHEDULED: 1, FINAL: 2, POSTPONED: 3, CANCELLED: 4 };
     return [...games].sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
   }, [games]);
 
-  function handleDateChange(date: Date) {
-    setLoading(true);
-    setSelectedDate(date);
-    setTimeout(() => setLoading(false), 400);
-  }
+  const liveCount = games.filter((g) => g.status === "LIVE").length;
+  const finalCount = games.filter((g) => g.status === "FINAL").length;
+  const scheduledCount = games.filter((g) => g.status === "SCHEDULED").length;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       {/* Title */}
       <div className="text-center">
-        <h1 className="font-heading text-4xl font-bold text-[#F5C842] tracking-wide">
-          RESULTADOS
+        <h1 className="font-heading text-4xl lg:text-5xl font-black text-[#F5C842] tracking-wide">
+          RESULTADOS MLB
         </h1>
         <div className="flex items-center justify-center gap-3 mt-2">
           <span className="h-px w-16 bg-[#8B7355]" />
           <span className="font-display text-xs uppercase tracking-[0.2em] text-[#8B7355]">
-            Major League Baseball
+            Major League Baseball · {games.length} partidos
           </span>
           <span className="h-px w-16 bg-[#8B7355]" />
         </div>
       </div>
 
       {/* Date selector */}
-      <DateSelector selectedDate={selectedDate} onDateChange={handleDateChange} />
+      <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
-      {/* Scoreboard */}
-      <ScoreBoard games={sortedGames} loading={loading} />
+      {/* Status summary + refresh */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm px-4 py-3">
+        <div className="flex flex-wrap items-center gap-4 font-display text-xs uppercase tracking-wider text-[#3D2B1F]">
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#C41E3A] animate-pulse-live" />
+            <span className="font-bold">{liveCount}</span> En Vivo
+          </span>
+          <span className="text-[#8B7355]">·</span>
+          <span><span className="font-bold">{finalCount}</span> Finalizados</span>
+          <span className="text-[#8B7355]">·</span>
+          <span><span className="font-bold">{scheduledCount}</span> Programados</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[10px] text-[#8B7355]">
+            Actualizado {lastUpdate.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+          </span>
+          <button
+            onClick={refresh}
+            className="font-display text-[10px] uppercase tracking-wider bg-[#0D2240] text-[#F5C842] px-3 py-1.5 rounded-sm border border-[#8B7355] hover:bg-[#1A3A5C] transition-colors"
+          >
+            ↻ Actualizar
+          </button>
+        </div>
+      </div>
+
+      {/* Scoreboard - all games shown */}
+      <div>
+        <h2 className="font-display text-xs uppercase tracking-[0.2em] text-[#8B7355] mb-4">
+          ━━ Todos los partidos ━━
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {sortedGames.map((g) => (
+            <ScoreCard key={g.id} game={g} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

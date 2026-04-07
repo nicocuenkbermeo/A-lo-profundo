@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
+  { href: "/", icon: "🏟️", label: "Inicio" },
   { href: "/scores", icon: "⚾", label: "Scores" },
   { href: "/stats", icon: "📊", label: "Stats" },
-  { href: "/picks", icon: "🎯", label: "Picks" },
   { href: "/rachas", icon: "🔥", label: "Rachas" },
-  { href: "/trends", icon: "📈", label: "Más" },
+  { href: "/trends", icon: "📈", label: "Tendencias" },
 ];
 
 export function MobileNav() {
