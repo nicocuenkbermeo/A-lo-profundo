@@ -19,20 +19,20 @@ const navLinks = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-3">
+    <Link href="/" className="flex items-center gap-4 shrink-0">
       <Image
         src="/logo.png"
         alt="A lo Profundo"
-        width={88}
-        height={88}
+        width={120}
+        height={120}
         priority
-        className="w-[72px] h-[72px] lg:w-[88px] lg:h-[88px] drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)]"
+        className="w-[80px] h-[80px] lg:w-[96px] lg:h-[96px] drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)] shrink-0"
       />
-      <div className="hidden sm:flex items-baseline gap-2 leading-none">
-        <span className="font-heading text-[#F5C842] text-xl font-black tracking-tight">
+      <div className="hidden sm:flex items-baseline gap-2 whitespace-nowrap">
+        <span className="font-heading text-[#F5C842] text-2xl lg:text-3xl font-black tracking-tight">
           A LO
         </span>
-        <span className="font-heading text-[#C41E3A] text-xl font-black italic">
+        <span className="font-heading text-[#C41E3A] text-2xl lg:text-3xl font-black italic">
           PROFUNDO
         </span>
       </div>
@@ -45,7 +45,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-[#0D2240] border-b-[3px] border-[#8B7355]">
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-between px-4 py-4 gap-4 min-h-[96px] lg:min-h-[112px]">
         <Logo />
 
         <nav className="hidden lg:flex items-center gap-7">
