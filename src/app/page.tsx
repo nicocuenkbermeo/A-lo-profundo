@@ -25,7 +25,7 @@ export default async function HomePage() {
   const todayGames = allGames.slice(0, 6);
   const standings = standingsAll.slice(0, 5).map((s) => ({
     team: s.abbr,
-    name: s.name.split(" ").slice(-1)[0],
+    name: s.name,
     w: s.wins,
     l: s.losses,
     pct: s.pct,
@@ -117,10 +117,9 @@ export default async function HomePage() {
               {standings.map((s, i) => (
                 <tr key={s.team} className={cn("border-b border-[#8B7355]/20", i === 0 && "bg-[#F5C842]/10")}>
                   <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <TeamBadge abbreviation={s.team} size="sm" />
-                      <span className="font-heading font-bold text-sm text-[#3D2B1F]">{s.team}</span>
-                      <span className="font-sans text-xs text-[#8B7355]">{s.name}</span>
+                      <span className="font-sans text-sm text-[#3D2B1F]">{s.name}</span>
                     </div>
                   </td>
                   <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.w}</td>

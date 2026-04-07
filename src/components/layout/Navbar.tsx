@@ -28,14 +28,11 @@ function Logo() {
         priority
         className="w-[80px] h-[80px] lg:w-[96px] lg:h-[96px] drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)] shrink-0"
       />
-      <div className="hidden sm:flex items-baseline gap-2 whitespace-nowrap">
-        <span className="font-heading text-[#F5C842] text-2xl lg:text-3xl font-black tracking-tight">
-          A LO
-        </span>
-        <span className="font-heading text-[#C41E3A] text-2xl lg:text-3xl font-black italic">
-          PROFUNDO
-        </span>
-      </div>
+      <h1 className="hidden sm:block font-heading text-2xl lg:text-3xl font-black whitespace-nowrap leading-none m-0">
+        <span className="text-[#F5C842]">A LO</span>
+        {"\u00A0"}
+        <span className="text-[#C41E3A] italic">PROFUNDO</span>
+      </h1>
     </Link>
   );
 }
