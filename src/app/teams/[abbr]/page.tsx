@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { fetchTeamSchedule, teamIdFromAbbr, computeRecord, TEAM_META } from "@/lib/mlb-api";
+import { getTeamDisplayName } from "@/lib/team-display";
 import { ScoreCard } from "@/components/scores/ScoreCard";
 import StitchDivider from "@/components/vintage/StitchDivider";
 import TeamBadge from "@/components/vintage/TeamBadge";
@@ -20,9 +21,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const upper = abbr.toUpperCase();
   const meta = TEAM_META[upper];
   if (!meta) return { title: "Equipo no encontrado" };
+  const fullName = getTeamDisplayName({ name: meta.name, city: meta.city, abbreviation: upper });
   return {
-    title: `${meta.city} ${meta.name}`,
-    description: `Historial de partidos, resultados y calendario de los ${meta.city} ${meta.name}.`,
+    title: fullName,
+    description: `Historial de partidos, resultados y calendario de los ${fullName}.`,
   };
 }
 
@@ -170,7 +172,7 @@ export default async function TeamPage({ params }: PageProps) {
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-2">
                           <TeamBadge abbreviation={opp.abbreviation} size="sm" />
-                          <span className="font-sans text-sm text-[#3D2B1F]">{opp.name}</span>
+                          <span className="font-sans text-sm text-[#3D2B1F]">{getTeamDisplayName(opp)}</span>
                         </div>
                       </td>
                       <td className="px-3 py-2.5 text-center font-display text-[10px] uppercase text-[#8B7355]">

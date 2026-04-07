@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { LiveIndicator } from "./LiveIndicator";
 import { InningTracker } from "./InningTracker";
 import TeamBadge from "@/components/vintage/TeamBadge";
+import { getTeamDisplayName } from "@/lib/team-display";
 import type { Game } from "@/types/game";
 
 interface ScoreCardProps {
@@ -86,7 +87,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
                 "font-sans text-sm",
                 awayWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
               )}>
-                {game.awayTeam.name}
+                {getTeamDisplayName(game.awayTeam)}
               </span>
             </div>
             {!isScheduled && (
@@ -110,7 +111,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
                 "font-sans text-sm",
                 homeWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
               )}>
-                {game.homeTeam.name}
+                {getTeamDisplayName(game.homeTeam)}
               </span>
             </div>
             {!isScheduled && (
