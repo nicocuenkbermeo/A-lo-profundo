@@ -43,7 +43,7 @@ const todayMatchups = [
     time: "7:05 PM",
     awayPitcher: "Cole (5-1, 1.89)",
     homePitcher: "Pivetta (2-3, 4.12)",
-    analysis: "Cole ha dominado a Boston en sus ultimas 5 salidas. Ventaja clara para New York con el mejor abridor de la liga.",
+    analysis: "Cole ha dominado a Boston en sus últimas 5 salidas. Ventaja clara para New York con el mejor abridor de la liga.",
   },
   {
     away: "LAD", home: "SF", awayColor: "#005A9C", homeColor: "#FD5A1E",
@@ -57,7 +57,7 @@ const todayMatchups = [
     time: "7:10 PM",
     awayPitcher: "Strider (4-1, 2.05)",
     homePitcher: "Senga (2-2, 3.55)",
-    analysis: "Strider viene imparable con 42 K en su ultimo mes. Los Mets han tenido problemas contra fastballs de alta velocidad.",
+    analysis: "Strider viene imparable con 42 K en su último mes. Los Mets han tenido problemas contra fastballs de alta velocidad.",
   },
   {
     away: "HOU", home: "TEX", awayColor: "#002D62", homeColor: "#C0111F",
@@ -181,7 +181,7 @@ export default function TrendsPage() {
 
       {/* Today's matchups */}
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-[#FDF6E3]">MATCHUPS DEL D\u00cdA</h2>
+        <h2 className="font-heading text-xl font-bold text-[#FDF6E3]">MATCHUPS DEL DÍA</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {todayMatchups.map((m) => (
             <div key={`${m.away}-${m.home}`} className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
