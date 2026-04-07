@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { cn } from "@/lib/utils"
 import { ResponsibleGamingNotice } from "@/components/ui/ResponsibleGamingNotice"
+import { BullpenWidget } from "@/components/mlb/BullpenWidget"
 
 export const metadata: Metadata = {
   title: "Tendencias",
@@ -179,6 +180,12 @@ export default function TrendsPage() {
           </div>
         </div>
         <ResponsibleGamingNotice className="mt-2" />
+      </section>
+
+      {/* Bullpen Fatigue widget (Feature 6) */}
+      <section className="space-y-4">
+        <h2 className="font-heading text-xl font-bold text-[#FDF6E3]">BULLPENS</h2>
+        <BullpenWidget />
       </section>
 
       {/* Today's matchups */}
