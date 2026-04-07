@@ -141,6 +141,54 @@ export interface TeamStatsResponse {
   stats: TeamStatsGroup[];
 }
 
+// ---------------------------------------------------------------------------
+// Play-by-play (used by Feature 1 — Momento del Día, and later F3 + F7)
+// ---------------------------------------------------------------------------
+
+export interface PlayAbout {
+  atBatIndex: number;
+  halfInning: "top" | "bottom";
+  isTopInning?: boolean;
+  inning: number;
+  isScoringPlay?: boolean;
+  hasOut?: boolean;
+  /** MLB-calculated drama metric, 0–100. Undefined for old games. */
+  captivatingIndex?: number;
+  homeScore?: number;
+  awayScore?: number;
+}
+
+export interface PlayResult {
+  type?: string;
+  event?: string;
+  eventType?: string;
+  description: string;
+  rbi?: number;
+  awayScore?: number;
+  homeScore?: number;
+}
+
+export interface PlayMatchup {
+  batter?: { id: number; fullName: string };
+  pitcher?: { id: number; fullName: string };
+  postOnFirst?: { id: number; fullName: string };
+  postOnSecond?: { id: number; fullName: string };
+  postOnThird?: { id: number; fullName: string };
+}
+
+export interface PlayCount {
+  balls?: number;
+  strikes?: number;
+  outs?: number;
+}
+
+export interface Play {
+  about: PlayAbout;
+  result: PlayResult;
+  matchup: PlayMatchup;
+  count?: PlayCount;
+}
+
 export interface LiveFeedResponse {
   gameData: {
     game: { pk: number };
@@ -157,6 +205,9 @@ export interface LiveFeedResponse {
         home: BoxscoreTeam;
         away: BoxscoreTeam;
       };
+    };
+    plays?: {
+      allPlays?: Play[];
     };
   };
 }
