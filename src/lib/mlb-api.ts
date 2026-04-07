@@ -186,3 +186,95 @@ export async function fetchMlbGames(date?: string): Promise<Game[]> {
     return [];
   }
 }
+
+// Reverse map: our abbreviation -> MLB API team id
+export const ABBR_TO_TEAM_ID: Record<string, number> = Object.fromEntries(
+  Object.entries(TEAM_ID_TO_ABBR).map(([id, abbr]) => [abbr, Number(id)])
+);
+
+export function teamIdFromAbbr(abbr: string): number | null {
+  return ABBR_TO_TEAM_ID[abbr.toUpperCase()] ?? null;
+}
+
+// Pretty team metadata for the team header pages
+export const TEAM_META: Record<string, { name: string; city: string; league: "AL" | "NL"; division: "EAST" | "CENTRAL" | "WEST" }> = {
+  ARI: { name: "Diamondbacks", city: "Arizona", league: "NL", division: "WEST" },
+  ATL: { name: "Braves", city: "Atlanta", league: "NL", division: "EAST" },
+  BAL: { name: "Orioles", city: "Baltimore", league: "AL", division: "EAST" },
+  BOS: { name: "Red Sox", city: "Boston", league: "AL", division: "EAST" },
+  CHC: { name: "Cubs", city: "Chicago", league: "NL", division: "CENTRAL" },
+  CHW: { name: "White Sox", city: "Chicago", league: "AL", division: "CENTRAL" },
+  CIN: { name: "Reds", city: "Cincinnati", league: "NL", division: "CENTRAL" },
+  CLE: { name: "Guardians", city: "Cleveland", league: "AL", division: "CENTRAL" },
+  COL: { name: "Rockies", city: "Colorado", league: "NL", division: "WEST" },
+  DET: { name: "Tigers", city: "Detroit", league: "AL", division: "CENTRAL" },
+  HOU: { name: "Astros", city: "Houston", league: "AL", division: "WEST" },
+  KCR: { name: "Royals", city: "Kansas City", league: "AL", division: "CENTRAL" },
+  LAA: { name: "Angels", city: "Los Angeles", league: "AL", division: "WEST" },
+  LAD: { name: "Dodgers", city: "Los Angeles", league: "NL", division: "WEST" },
+  MIA: { name: "Marlins", city: "Miami", league: "NL", division: "EAST" },
+  MIL: { name: "Brewers", city: "Milwaukee", league: "NL", division: "CENTRAL" },
+  MIN: { name: "Twins", city: "Minnesota", league: "AL", division: "CENTRAL" },
+  NYM: { name: "Mets", city: "New York", league: "NL", division: "EAST" },
+  NYY: { name: "Yankees", city: "New York", league: "AL", division: "EAST" },
+  OAK: { name: "Athletics", city: "Oakland", league: "AL", division: "WEST" },
+  PHI: { name: "Phillies", city: "Philadelphia", league: "NL", division: "EAST" },
+  PIT: { name: "Pirates", city: "Pittsburgh", league: "NL", division: "CENTRAL" },
+  SDP: { name: "Padres", city: "San Diego", league: "NL", division: "WEST" },
+  SEA: { name: "Mariners", city: "Seattle", league: "AL", division: "WEST" },
+  SFG: { name: "Giants", city: "San Francisco", league: "NL", division: "WEST" },
+  STL: { name: "Cardinals", city: "St. Louis", league: "NL", division: "CENTRAL" },
+  TBR: { name: "Rays", city: "Tampa Bay", league: "AL", division: "EAST" },
+  TEX: { name: "Rangers", city: "Texas", league: "AL", division: "WEST" },
+  TOR: { name: "Blue Jays", city: "Toronto", league: "AL", division: "EAST" },
+  WSH: { name: "Nationals", city: "Washington", league: "NL", division: "EAST" },
+};
+
+/**
+ * Fetch a team's schedule for a date range (defaults: last 30 days through next 7 days).
+ * Returns games sorted newest first.
+ */
+export async function fetchTeamSchedule(teamId: number, daysBack = 30, daysForward = 7): Promise<Game[]> {
+  const today = new Date();
+  const start = new Date(today);
+  start.setDate(today.getDate() - daysBack);
+  const end = new Date(today);
+  end.setDate(today.getDate() + daysForward);
+
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  const url = `${MLB_API}/schedule?sportId=1&teamId=${teamId}&startDate=${fmt(start)}&endDate=${fmt(end)}&hydrate=linescore,team,venue`;
+
+  try {
+    const res = await fetch(url, { next: { revalidate: 300 } });
+    if (!res.ok) throw new Error(`MLB API error: ${res.status}`);
+    const json = await res.json();
+    const dates: { games: MlbApiGame[] }[] = json.dates ?? [];
+    const games = dates.flatMap((d) => d.games).map(buildGame);
+    // Newest first
+    return games.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch (err) {
+    console.error("[mlb-api] Failed to fetch team schedule:", err);
+    return [];
+  }
+}
+
+/**
+ * Compute a team's record from a list of games (only counts FINAL games).
+ */
+export function computeRecord(games: Game[], teamId: number): { wins: number; losses: number } {
+  let wins = 0;
+  let losses = 0;
+  for (const g of games) {
+    if (g.status !== "FINAL") continue;
+    const isHome = Number(g.homeTeam.id) === teamId;
+    const isAway = Number(g.awayTeam.id) === teamId;
+    if (!isHome && !isAway) continue;
+    const myScore = isHome ? g.homeScore : g.awayScore;
+    const oppScore = isHome ? g.awayScore : g.homeScore;
+    if (myScore > oppScore) wins++;
+    else if (myScore < oppScore) losses++;
+  }
+  return { wins, losses };
+}

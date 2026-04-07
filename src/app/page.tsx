@@ -59,10 +59,10 @@ export default async function HomePage() {
           <Image
             src="/logo.png"
             alt="A lo Profundo"
-            width={180}
-            height={180}
+            width={420}
+            height={420}
             priority
-            className="drop-shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
+            className="w-[260px] sm:w-[340px] lg:w-[420px] h-auto drop-shadow-[6px_6px_0px_rgba(0,0,0,0.55)]"
           />
           <h1 className="font-heading text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-none">
             <span className="text-[#F5C842]">A LO</span>{" "}
@@ -171,7 +171,7 @@ export default async function HomePage() {
           {ALL_TEAMS.map((abbr) => (
             <Link
               key={abbr}
-              href="/scores"
+              href={`/teams/${abbr}`}
               className="hover:scale-110 transition-transform"
               title={abbr}
             >
