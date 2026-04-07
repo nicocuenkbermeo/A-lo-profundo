@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { cn } from "@/lib/utils"
+import { ResponsibleGamingNotice } from "@/components/ui/ResponsibleGamingNotice"
 
 export const metadata: Metadata = {
   title: "Tendencias",
@@ -140,7 +141,7 @@ export default function TrendsPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Run line */}
           <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm p-5">
-            <h3 className="font-heading font-bold text-sm text-[#3D2B1F] mb-4">Run Line Cover %</h3>
+            <h3 className="font-heading font-bold text-sm text-[#3D2B1F] mb-4">% Cobertura de Run Line</h3>
             <div className="space-y-3">
               {runLineTrends.map((t) => (
                 <div key={t.team} className="flex items-center gap-3">
@@ -156,7 +157,7 @@ export default function TrendsPage() {
 
           {/* Over/Under */}
           <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm p-5">
-            <h3 className="font-heading font-bold text-sm text-[#3D2B1F] mb-4">Over / Under Trends</h3>
+            <h3 className="font-heading font-bold text-sm text-[#3D2B1F] mb-4">Tendencias Over / Under</h3>
             <div className="space-y-3">
               {overUnderTrends.map((t) => {
                 const underPct = 100 - t.overPct
@@ -177,6 +178,7 @@ export default function TrendsPage() {
             </div>
           </div>
         </div>
+        <ResponsibleGamingNotice className="mt-2" />
       </section>
 
       {/* Today's matchups */}
