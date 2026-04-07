@@ -83,6 +83,64 @@ export interface BoxscoreTeam {
   pitchers: number[];
 }
 
+// ---------------------------------------------------------------------------
+// Standings (used by Feature 4 — Power Rankings)
+// ---------------------------------------------------------------------------
+
+export interface StandingSplitRecord {
+  wins: number;
+  losses: number;
+  /** e.g. "lastTen", "home", "away". */
+  type: string;
+}
+
+export interface StandingTeamRecord {
+  team: { id: number; name: string };
+  wins: number;
+  losses: number;
+  gamesPlayed: number;
+  winningPercentage: string; // "0.612"
+  runDifferential: number;
+  streak?: { streakType: "wins" | "losses"; streakNumber: number; streakCode: string };
+  records?: {
+    splitRecords?: StandingSplitRecord[];
+  };
+}
+
+export interface StandingsRecordsBlock {
+  league: { id: number };
+  division: { id: number };
+  teamRecords: StandingTeamRecord[];
+}
+
+export interface StandingsResponse {
+  records: StandingsRecordsBlock[];
+}
+
+// ---------------------------------------------------------------------------
+// Team stats by date range (hitting / pitching) — Feature 4
+// ---------------------------------------------------------------------------
+
+export interface TeamStatsSplit {
+  stat: {
+    ops?: string; // "0.785"
+    era?: string; // "3.42"
+    avg?: string;
+    obp?: string;
+    slg?: string;
+  };
+  team?: { id: number };
+}
+
+export interface TeamStatsGroup {
+  group: { displayName: string };
+  splits: TeamStatsSplit[];
+}
+
+export interface TeamStatsResponse {
+  stats: TeamStatsGroup[];
+}
+
 export interface LiveFeedResponse {
   gameData: {
     game: { pk: number };

@@ -37,3 +37,31 @@ export function scheduleByDate(date: string, hydrate?: string): string {
 export function liveFeed(gamePk: number | string): string {
   return `${MLB_API_V1_1}/game/${gamePk}/feed/live`;
 }
+
+/** League-wide standings for a season. */
+export function standings(season: number): string {
+  const url = new URL(`${MLB_API_V1}/standings`);
+  url.searchParams.set("leagueId", "103,104");
+  url.searchParams.set("season", String(season));
+  url.searchParams.set("standingsTypes", "regularSeason");
+  url.searchParams.set("hydrate", "team,record(splitRecords)");
+  return url.toString();
+}
+
+/** Team stats by date range — used for recent OPS / ERA windows. */
+export function teamStatsByDateRange(params: {
+  teamId: number;
+  season: number;
+  group: "hitting" | "pitching";
+  startDate: string;
+  endDate: string;
+}): string {
+  const url = new URL(`${MLB_API_V1}/teams/${params.teamId}/stats`);
+  url.searchParams.set("stats", "byDateRange");
+  url.searchParams.set("season", String(params.season));
+  url.searchParams.set("group", params.group);
+  url.searchParams.set("startDate", params.startDate);
+  url.searchParams.set("endDate", params.endDate);
+  url.searchParams.set("sportId", "1");
+  return url.toString();
+}
