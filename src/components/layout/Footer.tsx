@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="hidden lg:block bg-[#0D2240] border-t-[3px] border-[#8B7355] py-8 px-4">
+    <footer className="block bg-[#0D2240] border-t-[3px] border-[#8B7355] py-8 px-4">
       {/* Stitch divider */}
       <div className="max-w-5xl mx-auto mb-6">
         <div className="border-t-2 border-dashed border-[#C41E3A]/60" />
