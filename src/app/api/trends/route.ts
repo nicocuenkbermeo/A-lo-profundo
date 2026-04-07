@@ -78,9 +78,9 @@ export async function GET() {
 
     // Betting trends (mock cover rates)
     const bettingTrends = [
-      { label: "Favoritos ML (last 30 days)", value: 57.3, description: "Favoritos han ganado el 57.3% de los juegos" },
-      { label: "Over/Under tendencia", value: 52.1, description: "El Over ha pegado en el 52.1% de los juegos" },
-      { label: "Home teams ML", value: 54.8, description: "Equipos locales ganan el 54.8% en casa" },
+      { label: "Favoritos ML (últimos 30 días)", value: 57.3, description: "Favoritos han ganado el 57.3% de los juegos" },
+      { label: "Tendencia Over/Under", value: 52.1, description: "El Over ha pegado en el 52.1% de los juegos" },
+      { label: "Equipos locales ML", value: 54.8, description: "Equipos locales ganan el 54.8% en casa" },
       { label: "Run Line -1.5 favoritos", value: 44.2, description: "Favoritos cubren -1.5 en el 44.2% de juegos" },
       { label: "Underdogs +150 o mejor", value: 38.6, description: "Underdogs a +150+ ganan el 38.6%" },
     ];
