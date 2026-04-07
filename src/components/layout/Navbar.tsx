@@ -23,10 +23,10 @@ function Logo() {
       <Image
         src="/logo.png"
         alt="A lo Profundo"
-        width={120}
+        width={240}
         height={120}
         priority
-        className="w-[80px] h-[80px] lg:w-[96px] lg:h-[96px] drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)] shrink-0"
+        className="h-[72px] lg:h-[88px] w-auto drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)] shrink-0"
       />
       <h1 className="hidden sm:block font-heading text-2xl lg:text-3xl font-black whitespace-nowrap leading-none m-0">
         <span className="text-[#F5C842]">A LO</span>
