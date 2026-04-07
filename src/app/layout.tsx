@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Navbar } from "@/components/layout/Navbar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
+import { AdSenseScript } from "@/components/ads/AdSenseScript";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -40,6 +41,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${playfair.variable} ${crimsonText.variable} ${jetbrainsMono.variable} ${specialElite.variable} dark`} suppressHydrationWarning>
+      <head>
+        <AdSenseScript />
+      </head>
       <body className="min-h-screen bg-background text-foreground antialiased diamond-pattern">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <div className="flex min-h-screen flex-col">

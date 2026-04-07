@@ -23,10 +23,10 @@ function Logo() {
       <Image
         src="/logo.png"
         alt="A lo Profundo"
-        width={56}
-        height={56}
+        width={88}
+        height={88}
         priority
-        className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)]"
+        className="w-[72px] h-[72px] lg:w-[88px] lg:h-[88px] drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)]"
       />
       <div className="hidden sm:flex flex-col leading-none">
         <span className="font-heading text-[#F5C842] text-xl font-black tracking-tight">

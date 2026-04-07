@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { DateSelector } from "@/components/scores/DateSelector";
 import { ScoreCard } from "@/components/scores/ScoreCard";
+import { AdSlot } from "@/components/ads/AdSlot";
 import type { Game } from "@/types/game";
 
 function dateToYmd(date: Date): string {
@@ -140,6 +141,9 @@ export default function ScoresPage() {
         </div>
       )}
 
+      {/* Top banner ad */}
+      <AdSlot slot="3333333333" format="horizontal" label="Publicidad" />
+
       {/* Scoreboard */}
       {sortedGames.length > 0 && (
         <div>
@@ -147,9 +151,17 @@ export default function ScoresPage() {
             ━━ Todos los partidos del día ━━
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {sortedGames.map((g) => (
-              <ScoreCard key={g.id} game={g} />
-            ))}
+            {sortedGames.map((g, i) => {
+              const items = [<ScoreCard key={g.id} game={g} />];
+              if ((i + 1) % 6 === 0 && i < sortedGames.length - 1) {
+                items.push(
+                  <div key={`ad-${i}`} className="sm:col-span-2 lg:col-span-3">
+                    <AdSlot slot="4444444444" format="horizontal" label="Publicidad" />
+                  </div>
+                );
+              }
+              return items;
+            })}
           </div>
         </div>
       )}

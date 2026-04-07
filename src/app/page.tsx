@@ -6,6 +6,7 @@ import RetroButton from "@/components/vintage/RetroButton";
 import TeamBadge from "@/components/vintage/TeamBadge";
 import { cn } from "@/lib/utils";
 import { fetchMlbGames } from "@/lib/mlb-api";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 export const revalidate = 60;
 
@@ -59,10 +60,10 @@ export default async function HomePage() {
           <Image
             src="/logo.png"
             alt="A lo Profundo"
-            width={420}
-            height={420}
+            width={640}
+            height={640}
             priority
-            className="w-[260px] sm:w-[340px] lg:w-[420px] h-auto drop-shadow-[6px_6px_0px_rgba(0,0,0,0.55)]"
+            className="w-[340px] sm:w-[460px] lg:w-[600px] h-auto drop-shadow-[8px_8px_0px_rgba(0,0,0,0.55)]"
           />
           <h1 className="font-heading text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-none">
             <span className="text-[#F5C842]">A LO</span>{" "}
@@ -100,6 +101,11 @@ export default async function HomePage() {
             <ScoreCard key={game.id} game={game} />
           ))}
         </div>
+      </section>
+
+      {/* Banner ad after games */}
+      <section className="mx-auto max-w-6xl px-4 py-4">
+        <AdSlot slot="1111111111" format="horizontal" label="Publicidad" />
       </section>
 
       <StitchDivider />
@@ -140,6 +146,11 @@ export default async function HomePage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* In-content ad */}
+      <section className="mx-auto max-w-6xl px-4 py-4">
+        <AdSlot slot="2222222222" format="auto" label="Publicidad" />
       </section>
 
       <StitchDivider />

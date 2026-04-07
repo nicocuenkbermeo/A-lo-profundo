@@ -5,6 +5,7 @@ import { fetchTeamSchedule, teamIdFromAbbr, computeRecord, TEAM_META } from "@/l
 import { ScoreCard } from "@/components/scores/ScoreCard";
 import StitchDivider from "@/components/vintage/StitchDivider";
 import TeamBadge from "@/components/vintage/TeamBadge";
+import { AdSlot } from "@/components/ads/AdSlot";
 import type { Metadata } from "next";
 import type { Game } from "@/types/game";
 
@@ -120,6 +121,8 @@ export default async function TeamPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      <AdSlot slot="5555555555" format="horizontal" label="Publicidad" />
 
       <StitchDivider />
 

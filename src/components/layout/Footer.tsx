@@ -11,7 +11,7 @@ export function Footer() {
 
       {/* Logo */}
       <div className="flex flex-col items-center gap-2 mb-2">
-        <Image src="/logo.png" alt="A lo Profundo" width={80} height={80} className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)]" />
+        <Image src="/logo.png" alt="A lo Profundo" width={140} height={140} className="drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)]" />
         <div>
           <span className="font-heading text-[#F5C842] text-2xl font-black tracking-tight">
             A LO{" "}
