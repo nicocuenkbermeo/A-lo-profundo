@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { Game } from "@/types/game";
 
+type TickerState = "loading" | "ready" | "empty" | "error";
+
 function gameToText(g: Game): string {
   const away = g.awayTeam.abbreviation;
   const home = g.homeTeam.abbreviation;
@@ -15,15 +17,27 @@ function gameToText(g: Game): string {
 }
 
 export function Ticker() {
-  const [text, setText] = useState<string>("A LO PROFUNDO · Tu fuente de béisbol");
-  const [hasData, setHasData] = useState(false);
+  const [state, setState] = useState<TickerState>("loading");
+  const [text, setText] = useState<string>("Cargando partidos…");
 
   useEffect(() => {
     let cancelled = false;
+
+    // Safety net: if the fetch takes more than 5s we move out of loading state.
+    const loadingTimeout = setTimeout(() => {
+      if (!cancelled) {
+        setState((prev) => (prev === "loading" ? "error" : prev));
+      }
+    }, 5000);
+
     async function load() {
       try {
         const res = await fetch("/api/mlb", { cache: "no-store" });
-        if (!res.ok) return;
+        if (cancelled) return;
+        if (!res.ok) {
+          setState("error");
+          return;
+        }
         const json = await res.json();
         if (cancelled) return;
         const games: Game[] = json.data ?? [];
@@ -33,23 +47,34 @@ export function Ticker() {
         const relevant = [...live, ...scheduled, ...finals];
 
         if (relevant.length === 0) {
-          setText("No hay partidos en vivo ahora · A LO PROFUNDO");
-          setHasData(true);
+          setText("No hay partidos en vivo ahora mismo");
+          setState("empty");
           return;
         }
+
         setText(relevant.map(gameToText).join("   ·   "));
-        setHasData(true);
-      } catch {
-        /* keep default text */
+        setState("ready");
+      } catch (err) {
+        if (cancelled) return;
+        console.error("[Ticker] Failed to load games:", err);
+        setState("error");
       }
     }
+
     load();
     const interval = setInterval(load, 60000);
     return () => {
       cancelled = true;
+      clearTimeout(loadingTimeout);
       clearInterval(interval);
     };
   }, []);
+
+  // Hide the ticker entirely on fetch error so it never stays stuck.
+  if (state === "error") return null;
+
+  const displayText = state === "loading" ? "Cargando partidos…" : text;
+  const animate = state === "ready";
 
   return (
     <div className="relative w-full h-8 bg-[#C41E3A] overflow-hidden flex items-center">
@@ -57,8 +82,11 @@ export function Ticker() {
         EN VIVO
       </div>
       <div className="relative flex-1 overflow-hidden h-full flex items-center">
-        <div key={text} className={hasData ? "animate-ticker whitespace-nowrap" : "whitespace-nowrap px-4"}>
-          <span className="font-display text-sm text-white px-4">{text}</span>
+        <div
+          key={displayText}
+          className={animate ? "animate-ticker whitespace-nowrap" : "whitespace-nowrap px-4"}
+        >
+          <span className="font-display text-sm text-white px-4">{displayText}</span>
         </div>
       </div>
       <style jsx>{`
