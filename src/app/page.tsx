@@ -1,19 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ScoreCard } from "@/components/scores/ScoreCard";
-import { StreakBadge } from "@/components/rachas/StreakBadge";
 import StitchDivider from "@/components/vintage/StitchDivider";
 import RetroButton from "@/components/vintage/RetroButton";
 import TeamBadge from "@/components/vintage/TeamBadge";
 import { cn } from "@/lib/utils";
-import { getTodaysGames } from "@/lib/mock-mlb";
+import { fetchMlbGames } from "@/lib/mlb-api";
 
-const topStreakers = [
-  { name: "El Profeta", emoji: "🔮", streak: 8, winPct: 74.3 },
-  { name: "BatFlip King", emoji: "👑", streak: 5, winPct: 67.7 },
-  { name: "Sabermetrics Joe", emoji: "🧮", streak: 4, winPct: 71.2 },
-  { name: "La Máquina", emoji: "⚙️", streak: 3, winPct: 65.5 },
-];
+export const revalidate = 60;
 
 const standings = [
   { team: "BAL", name: "Orioles", w: 18, l: 8, pct: ".692" },
@@ -50,8 +44,9 @@ const ALL_TEAMS = [
   "PHI", "PIT", "SDP", "SEA", "SFG", "STL", "TBR", "TEX", "TOR", "WSH",
 ];
 
-export default function HomePage() {
-  const todayGames = getTodaysGames().slice(0, 6);
+export default async function HomePage() {
+  const allGames = await fetchMlbGames();
+  const todayGames = allGames.slice(0, 6);
 
   return (
     <div className="space-y-0 pb-12">
@@ -74,14 +69,14 @@ export default function HomePage() {
             <span className="text-[#C41E3A] italic">PROFUNDO</span>
           </h1>
           <p className="max-w-xl font-display text-base lg:text-lg text-[#8FBCE6] tracking-wider">
-            ⚾ Tu fuente de béisbol profundo · Scores, Estadísticas y Rachas
+            ⚾ Tu fuente de béisbol profundo · Scores en vivo · Estadísticas
           </p>
           <div className="mt-2 flex flex-wrap justify-center gap-4">
             <Link href="/scores">
               <RetroButton variant="red" size="lg">VER SCORES</RetroButton>
             </Link>
-            <Link href="/rachas">
-              <RetroButton variant="gold" size="lg">VER RACHAS</RetroButton>
+            <Link href="/trends">
+              <RetroButton variant="gold" size="lg">VER TENDENCIAS</RetroButton>
             </Link>
           </div>
         </div>
@@ -94,7 +89,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-heading text-2xl lg:text-3xl font-bold text-[#F5C842]">JUEGOS DE HOY</h2>
-            <p className="font-display text-xs text-[#8B7355] mt-1">15 partidos en vivo y programados</p>
+            <p className="font-display text-xs text-[#8B7355] mt-1">{allGames.length} partidos · Hora Bogotá</p>
           </div>
           <Link href="/scores" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
             Ver todos →
@@ -109,68 +104,41 @@ export default function HomePage() {
 
       <StitchDivider />
 
-      {/* Two column: Standings + Top Streakers */}
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Standings */}
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading text-2xl font-bold text-[#F5C842]">CLASIFICACIÓN</h2>
-              <Link href="/stats/teams" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
-                Completa →
-              </Link>
-            </div>
-            <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="bg-[#0D2240] text-[#F5C842]">
-                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider">Equipo</th>
-                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-center">W</th>
-                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-center">L</th>
-                    <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-right">PCT</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((s, i) => (
-                    <tr key={s.team} className={cn("border-b border-[#8B7355]/20", i === 0 && "bg-[#F5C842]/10")}>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <TeamBadge abbreviation={s.team} size="sm" />
-                          <span className="font-heading font-bold text-sm text-[#3D2B1F]">{s.team}</span>
-                          <span className="font-sans text-xs text-[#8B7355]">{s.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.w}</td>
-                      <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.l}</td>
-                      <td className="px-3 py-2 font-mono text-sm font-bold text-[#3D2B1F] text-right">{s.pct}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Top streakers */}
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading text-2xl font-bold text-[#F5C842]">RACHAS EN FUEGO 🔥</h2>
-              <Link href="/rachas" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
-                Leaderboard →
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {topStreakers.map((t) => (
-                <div key={t.name} className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm p-4 flex flex-col items-center gap-2">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-[#0D2240] text-xl border-2 border-[#8B7355]">
-                    {t.emoji}
-                  </div>
-                  <p className="font-heading font-bold text-sm text-[#3D2B1F] text-center">{t.name}</p>
-                  <StreakBadge count={t.streak} />
-                  <span className="font-mono text-xs text-[#8B7355]">Win% {t.winPct}%</span>
-                </div>
+      {/* Standings full width */}
+      <section className="mx-auto max-w-6xl px-4 py-10 space-y-5">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-2xl lg:text-3xl font-bold text-[#F5C842]">CLASIFICACIÓN</h2>
+          <Link href="/stats/teams" className="font-display text-xs uppercase tracking-wider text-[#8FBCE6] hover:text-[#F5C842] transition-colors">
+            Completa →
+          </Link>
+        </div>
+        <div className="relative bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm overflow-hidden">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#0D2240] text-[#F5C842]">
+                <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider">Equipo</th>
+                <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-center">W</th>
+                <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-center">L</th>
+                <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider text-right">PCT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((s, i) => (
+                <tr key={s.team} className={cn("border-b border-[#8B7355]/20", i === 0 && "bg-[#F5C842]/10")}>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <TeamBadge abbreviation={s.team} size="sm" />
+                      <span className="font-heading font-bold text-sm text-[#3D2B1F]">{s.team}</span>
+                      <span className="font-sans text-xs text-[#8B7355]">{s.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.w}</td>
+                  <td className="px-3 py-2 font-mono text-sm text-[#3D2B1F] text-center">{s.l}</td>
+                  <td className="px-3 py-2 font-mono text-sm font-bold text-[#3D2B1F] text-right">{s.pct}</td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
       </section>
 

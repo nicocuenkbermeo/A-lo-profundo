@@ -8,7 +8,6 @@ const tabs = [
   { href: "/", icon: "🏟️", label: "Inicio" },
   { href: "/scores", icon: "⚾", label: "Scores" },
   { href: "/stats", icon: "📊", label: "Stats" },
-  { href: "/rachas", icon: "🔥", label: "Rachas" },
   { href: "/trends", icon: "📈", label: "Tendencias" },
 ];
 

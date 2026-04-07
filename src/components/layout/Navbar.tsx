@@ -14,7 +14,6 @@ import {
 const navLinks = [
   { href: "/scores", label: "Scores" },
   { href: "/stats", label: "Estadísticas" },
-  { href: "/rachas", label: "Rachas" },
   { href: "/trends", label: "Tendencias" },
 ];
 

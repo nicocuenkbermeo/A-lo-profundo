@@ -3,73 +3,55 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { DateSelector } from "@/components/scores/DateSelector";
 import { ScoreCard } from "@/components/scores/ScoreCard";
-import { getTodaysGames } from "@/lib/mock-mlb";
 import type { Game } from "@/types/game";
 
-// Simulate live updates: increment LIVE games' scores and outs occasionally
-function simulateLiveTick(games: Game[]): Game[] {
-  return games.map((g) => {
-    if (g.status !== "LIVE") return g;
-    // 25% chance a run scores, 60% chance outs/inning advance
-    const newGame = { ...g };
-    if (Math.random() < 0.25) {
-      if (Math.random() > 0.5) newGame.homeScore = g.homeScore + 1;
-      else newGame.awayScore = g.awayScore + 1;
-    }
-    if (Math.random() < 0.6) {
-      const newOuts = (g.outs ?? 0) + 1;
-      if (newOuts >= 3) {
-        newGame.outs = 0;
-        if (g.inningHalf === "TOP") {
-          newGame.inningHalf = "BOTTOM";
-        } else {
-          newGame.inningHalf = "TOP";
-          newGame.inning = (g.inning ?? 1) + 1;
-        }
-      } else {
-        newGame.outs = newOuts;
-      }
-    }
-    return newGame;
-  });
+function dateToYmd(date: Date): string {
+  // Convert a JS Date to a Bogotá-localized YYYY-MM-DD
+  const bogota = new Date(date.toLocaleString("en-US", { timeZone: "America/Bogota" }));
+  const y = bogota.getFullYear();
+  const m = String(bogota.getMonth() + 1).padStart(2, "0");
+  const d = String(bogota.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 export default function ScoresPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [games, setGames] = useState<Game[]>(() => getTodaysGames());
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  const isToday = useMemo(() => {
-    const today = new Date();
-    return (
-      selectedDate.getFullYear() === today.getFullYear() &&
-      selectedDate.getMonth() === today.getMonth() &&
-      selectedDate.getDate() === today.getDate()
-    );
-  }, [selectedDate]);
+  const ymd = useMemo(() => dateToYmd(selectedDate), [selectedDate]);
 
-  const refresh = useCallback(() => {
-    if (!isToday) {
-      // Past/future dates: same schedule but no live ticks
-      setGames(getTodaysGames());
-    } else {
-      setGames((prev) => simulateLiveTick(prev));
+  const fetchGames = useCallback(async () => {
+    setError(null);
+    try {
+      const res = await fetch(`/api/mlb?date=${ymd}`, { cache: "no-store" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Error al obtener datos");
+      setGames(json.data);
+      setLastUpdate(new Date());
+    } catch (err) {
+      console.error(err);
+      setError("No se pudieron cargar los partidos. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
-    setLastUpdate(new Date());
-  }, [isToday]);
+  }, [ymd]);
 
-  // Auto-refresh every 15 seconds for live games
+  // Initial fetch + on date change
   useEffect(() => {
-    if (!isToday) return;
-    const interval = setInterval(refresh, 15000);
+    setLoading(true);
+    fetchGames();
+  }, [fetchGames]);
+
+  // Auto-refresh every 30 seconds for live games
+  const hasLive = games.some((g) => g.status === "LIVE");
+  useEffect(() => {
+    if (!hasLive) return;
+    const interval = setInterval(fetchGames, 30000);
     return () => clearInterval(interval);
-  }, [isToday, refresh]);
-
-  // Reset when date changes
-  useEffect(() => {
-    setGames(getTodaysGames());
-    setLastUpdate(new Date());
-  }, [selectedDate]);
+  }, [hasLive, fetchGames]);
 
   const sortedGames = useMemo(() => {
     const order: Record<string, number> = { LIVE: 0, SCHEDULED: 1, FINAL: 2, POSTPONED: 3, CANCELLED: 4 };
@@ -79,6 +61,13 @@ export default function ScoresPage() {
   const liveCount = games.filter((g) => g.status === "LIVE").length;
   const finalCount = games.filter((g) => g.status === "FINAL").length;
   const scheduledCount = games.filter((g) => g.status === "SCHEDULED").length;
+
+  const updatedTime = lastUpdate.toLocaleTimeString("es-CO", {
+    timeZone: "America/Bogota",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
@@ -90,7 +79,7 @@ export default function ScoresPage() {
         <div className="flex items-center justify-center gap-3 mt-2">
           <span className="h-px w-16 bg-[#8B7355]" />
           <span className="font-display text-xs uppercase tracking-[0.2em] text-[#8B7355]">
-            Major League Baseball · {games.length} partidos
+            Datos en vivo · Hora Bogotá (UTC-5)
           </span>
           <span className="h-px w-16 bg-[#8B7355]" />
         </div>
@@ -113,28 +102,57 @@ export default function ScoresPage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] text-[#8B7355]">
-            Actualizado {lastUpdate.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            Actualizado {updatedTime}
           </span>
           <button
-            onClick={refresh}
-            className="font-display text-[10px] uppercase tracking-wider bg-[#0D2240] text-[#F5C842] px-3 py-1.5 rounded-sm border border-[#8B7355] hover:bg-[#1A3A5C] transition-colors"
+            onClick={fetchGames}
+            disabled={loading}
+            className="font-display text-[10px] uppercase tracking-wider bg-[#0D2240] text-[#F5C842] px-3 py-1.5 rounded-sm border border-[#8B7355] hover:bg-[#1A3A5C] transition-colors disabled:opacity-50"
           >
-            ↻ Actualizar
+            {loading ? "Cargando..." : "↻ Actualizar"}
           </button>
         </div>
       </div>
 
-      {/* Scoreboard - all games shown */}
-      <div>
-        <h2 className="font-display text-xs uppercase tracking-[0.2em] text-[#8B7355] mb-4">
-          ━━ Todos los partidos ━━
-        </h2>
+      {/* Error state */}
+      {error && (
+        <div className="bg-[#FDF6E3] border-[3px] border-[#C41E3A] rounded-sm px-4 py-6 text-center">
+          <p className="font-heading text-lg text-[#C41E3A]">⚠️ {error}</p>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && games.length === 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {sortedGames.map((g) => (
-            <ScoreCard key={g.id} game={g} />
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-48 bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm animate-pulse" />
           ))}
         </div>
-      </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && games.length === 0 && !error && (
+        <div className="bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm px-4 py-12 text-center">
+          <p className="font-heading text-2xl text-[#3D2B1F]">⚾ No hay partidos programados</p>
+          <p className="font-display text-xs uppercase tracking-wider text-[#8B7355] mt-2">
+            La MLB no tiene juegos para esta fecha
+          </p>
+        </div>
+      )}
+
+      {/* Scoreboard */}
+      {sortedGames.length > 0 && (
+        <div>
+          <h2 className="font-display text-xs uppercase tracking-[0.2em] text-[#8B7355] mb-4">
+            ━━ Todos los partidos del día ━━
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {sortedGames.map((g) => (
+              <ScoreCard key={g.id} game={g} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
