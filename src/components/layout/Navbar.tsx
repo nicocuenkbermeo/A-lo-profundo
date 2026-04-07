@@ -28,7 +28,7 @@ function Logo() {
         priority
         className="w-[72px] h-[72px] lg:w-[88px] lg:h-[88px] drop-shadow-[3px_3px_0px_rgba(0,0,0,0.5)]"
       />
-      <div className="hidden sm:flex flex-col leading-none">
+      <div className="hidden sm:flex items-baseline gap-2 leading-none">
         <span className="font-heading text-[#F5C842] text-xl font-black tracking-tight">
           A LO
         </span>

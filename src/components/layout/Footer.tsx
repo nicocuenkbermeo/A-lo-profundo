@@ -29,7 +29,7 @@ export function Footer() {
 
       {/* Bottom row */}
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[#8FBCE6] text-xs font-display">
-        <span>© 2024 A lo Profundo</span>
+        <span>© {new Date().getFullYear()} A lo Profundo</span>
         <div className="flex items-center gap-3">
           <Link href="/about" className="hover:text-[#FDF6E3] transition-colors">
             Sobre Nosotros

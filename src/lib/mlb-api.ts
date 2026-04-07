@@ -132,6 +132,12 @@ function buildGame(g: MlbApiGame): Game {
   if (inningHalfRaw === "Top") inningHalf = "TOP";
   else if (inningHalfRaw === "Bottom") inningHalf = "BOTTOM";
 
+  // Use the FULL team name from the API (e.g. "Kansas City Royals") to avoid
+  // duplication bugs. `city` is left empty so UI components must render
+  // `team.name` exclusively.
+  const homeFull = g.teams.home.team.name;
+  const awayFull = g.teams.away.team.name;
+
   return {
     id: String(g.gamePk),
     externalId: String(g.gamePk),
@@ -143,22 +149,22 @@ function buildGame(g: MlbApiGame): Game {
     inningHalf,
     outs: g.linescore?.outs ?? 0,
     startTime: toBogotaTime(g.gameDate),
-    venue: g.venue.name,
+    venue: g.venue?.name ?? "",
     innings: [],
     homeTeam: {
       id: String(g.teams.home.team.id),
-      name: g.teams.home.team.name.replace(/^.*?\s/, ""), // strip city for short name
+      name: homeFull,
       abbreviation: homeAbbr,
-      city: g.teams.home.team.name.split(" ").slice(0, -1).join(" "),
+      city: "",
       logoUrl: `/logos/${homeAbbr}.png`,
       primaryColor: TEAM_COLORS[homeAbbr] ?? "#0D2240",
       secondaryColor: "",
     },
     awayTeam: {
       id: String(g.teams.away.team.id),
-      name: g.teams.away.team.name.replace(/^.*?\s/, ""),
+      name: awayFull,
       abbreviation: awayAbbr,
-      city: g.teams.away.team.name.split(" ").slice(0, -1).join(" "),
+      city: "",
       logoUrl: `/logos/${awayAbbr}.png`,
       primaryColor: TEAM_COLORS[awayAbbr] ?? "#0D2240",
       secondaryColor: "",
@@ -258,6 +264,307 @@ export async function fetchTeamSchedule(teamId: number, daysBack = 30, daysForwa
     console.error("[mlb-api] Failed to fetch team schedule:", err);
     return [];
   }
+}
+
+// ============================================================================
+// Game detail (live feed), standings and leaders
+// ============================================================================
+
+export interface BoxPlayerStat {
+  name: string;
+  position: string;
+  ab: number;
+  r: number;
+  h: number;
+  rbi: number;
+  bb: number;
+  so: number;
+  avg: string;
+}
+
+export interface TeamBoxTotals {
+  runs: number;
+  hits: number;
+  errors: number;
+}
+
+export interface LineScoreInning {
+  inningNumber: number;
+  homeRuns: number;
+  awayRuns: number;
+}
+
+export interface GameDetail {
+  id: string;
+  status: GameStatus;
+  statusDetail: string;
+  date: string;
+  startTime: string;
+  venue: string;
+  inning: number | null;
+  inningHalf: InningHalf | null;
+  outs: number;
+  home: {
+    id: number;
+    name: string;
+    abbr: string;
+    score: number;
+    record: string;
+    totals: TeamBoxTotals;
+    batters: BoxPlayerStat[];
+    color: string;
+  };
+  away: {
+    id: number;
+    name: string;
+    abbr: string;
+    score: number;
+    record: string;
+    totals: TeamBoxTotals;
+    batters: BoxPlayerStat[];
+    color: string;
+  };
+  innings: LineScoreInning[];
+}
+
+interface LiveFeedPlayerStats {
+  batting?: { atBats?: number; runs?: number; hits?: number; rbi?: number; baseOnBalls?: number; strikeOuts?: number; avg?: string };
+}
+interface LiveFeedPlayer {
+  person: { fullName: string };
+  position?: { abbreviation?: string };
+  stats?: LiveFeedPlayerStats;
+  seasonStats?: LiveFeedPlayerStats;
+  battingOrder?: string;
+}
+
+export async function fetchGameDetail(gameId: string): Promise<GameDetail | null> {
+  const url = `https://statsapi.mlb.com/api/v1.1/game/${gameId}/feed/live`;
+  try {
+    const res = await fetch(url, { next: { revalidate: 20 } });
+    if (!res.ok) throw new Error(`MLB feed error: ${res.status}`);
+    const json = await res.json();
+
+    const gameData = json.gameData ?? {};
+    const liveData = json.liveData ?? {};
+    const linescore = liveData.linescore ?? {};
+    const boxscore = liveData.boxscore ?? {};
+
+    const abstract = gameData.status?.abstractGameState ?? "Preview";
+    const detailState = gameData.status?.detailedState ?? "";
+    const status = mapStatus(abstract);
+
+    const inningHalfRaw = linescore.inningHalf;
+    let inningHalf: InningHalf | null = null;
+    if (inningHalfRaw === "Top") inningHalf = "TOP";
+    else if (inningHalfRaw === "Bottom") inningHalf = "BOTTOM";
+
+    const innings: LineScoreInning[] = (linescore.innings ?? []).map(
+      (i: { num: number; home: { runs?: number }; away: { runs?: number } }) => ({
+        inningNumber: i.num,
+        homeRuns: i.home?.runs ?? 0,
+        awayRuns: i.away?.runs ?? 0,
+      }),
+    );
+
+    const homeTeamId = gameData.teams?.home?.id ?? 0;
+    const awayTeamId = gameData.teams?.away?.id ?? 0;
+    const homeAbbr = TEAM_ID_TO_ABBR[homeTeamId] ?? "MLB";
+    const awayAbbr = TEAM_ID_TO_ABBR[awayTeamId] ?? "MLB";
+    const homeName = gameData.teams?.home?.name ?? "";
+    const awayName = gameData.teams?.away?.name ?? "";
+
+    const homeRecord = gameData.teams?.home?.record
+      ? `${gameData.teams.home.record.wins}-${gameData.teams.home.record.losses}`
+      : "";
+    const awayRecord = gameData.teams?.away?.record
+      ? `${gameData.teams.away.record.wins}-${gameData.teams.away.record.losses}`
+      : "";
+
+    function buildBatters(teamKey: "home" | "away"): BoxPlayerStat[] {
+      const teamBox = boxscore.teams?.[teamKey];
+      if (!teamBox) return [];
+      const battingOrder: number[] = teamBox.battingOrder ?? [];
+      const players: Record<string, LiveFeedPlayer> = teamBox.players ?? {};
+      const batters: BoxPlayerStat[] = [];
+      for (const pid of battingOrder) {
+        const p = players[`ID${pid}`];
+        if (!p) continue;
+        const b = p.stats?.batting ?? {};
+        const s = p.seasonStats?.batting ?? {};
+        batters.push({
+          name: p.person?.fullName ?? "",
+          position: p.position?.abbreviation ?? "",
+          ab: b.atBats ?? 0,
+          r: b.runs ?? 0,
+          h: b.hits ?? 0,
+          rbi: b.rbi ?? 0,
+          bb: b.baseOnBalls ?? 0,
+          so: b.strikeOuts ?? 0,
+          avg: s.avg ?? ".000",
+        });
+      }
+      return batters;
+    }
+
+    function teamTotals(teamKey: "home" | "away"): TeamBoxTotals {
+      const ts = boxscore.teams?.[teamKey]?.teamStats?.batting ?? {};
+      const fielding = boxscore.teams?.[teamKey]?.teamStats?.fielding ?? {};
+      return {
+        runs: ts.runs ?? 0,
+        hits: ts.hits ?? 0,
+        errors: fielding.errors ?? 0,
+      };
+    }
+
+    const homeTotals = teamTotals("home");
+    const awayTotals = teamTotals("away");
+
+    return {
+      id: gameId,
+      status,
+      statusDetail: detailState,
+      date: gameData.datetime?.dateTime ?? "",
+      startTime: toBogotaTime(gameData.datetime?.dateTime ?? ""),
+      venue: gameData.venue?.name ?? "",
+      inning: linescore.currentInning ?? null,
+      inningHalf,
+      outs: linescore.outs ?? 0,
+      home: {
+        id: homeTeamId,
+        name: homeName,
+        abbr: homeAbbr,
+        score: linescore.teams?.home?.runs ?? homeTotals.runs,
+        record: homeRecord,
+        totals: homeTotals,
+        batters: buildBatters("home"),
+        color: TEAM_COLORS[homeAbbr] ?? "#0D2240",
+      },
+      away: {
+        id: awayTeamId,
+        name: awayName,
+        abbr: awayAbbr,
+        score: linescore.teams?.away?.runs ?? awayTotals.runs,
+        record: awayRecord,
+        totals: awayTotals,
+        batters: buildBatters("away"),
+        color: TEAM_COLORS[awayAbbr] ?? "#0D2240",
+      },
+      innings,
+    };
+  } catch (err) {
+    console.error("[mlb-api] Failed to fetch game detail:", err);
+    return null;
+  }
+}
+
+// -------- Standings --------
+
+export interface StandingRow {
+  rank: number;
+  teamId: number;
+  abbr: string;
+  name: string;
+  wins: number;
+  losses: number;
+  pct: string;
+  gamesBack: string;
+  division: string;
+  league: "AL" | "NL";
+}
+
+export async function fetchStandings(season?: number): Promise<StandingRow[]> {
+  const year = season ?? new Date().getUTCFullYear();
+  const url = `${MLB_API}/standings?leagueId=103,104&season=${year}&standingsTypes=regularSeason`;
+  try {
+    const res = await fetch(url, { next: { revalidate: 600 } });
+    if (!res.ok) throw new Error(`MLB standings error: ${res.status}`);
+    const json = await res.json();
+    const records: Array<{
+      league: { id: number };
+      division: { id: number };
+      teamRecords: Array<{
+        team: { id: number; name: string };
+        wins: number;
+        losses: number;
+        winningPercentage: string;
+        divisionRank: string;
+        gamesBack: string;
+      }>;
+    }> = json.records ?? [];
+
+    const DIV_NAME: Record<number, string> = {
+      200: "AL WEST", 201: "AL EAST", 202: "AL CENTRAL",
+      203: "NL WEST", 204: "NL EAST", 205: "NL CENTRAL",
+    };
+
+    const rows: StandingRow[] = [];
+    for (const block of records) {
+      const leagueCode: "AL" | "NL" = block.league.id === 103 ? "AL" : "NL";
+      for (const tr of block.teamRecords) {
+        const abbr = TEAM_ID_TO_ABBR[tr.team.id] ?? "MLB";
+        rows.push({
+          rank: Number(tr.divisionRank) || 0,
+          teamId: tr.team.id,
+          abbr,
+          name: tr.team.name,
+          wins: tr.wins,
+          losses: tr.losses,
+          pct: tr.winningPercentage,
+          gamesBack: tr.gamesBack,
+          division: DIV_NAME[block.division.id] ?? "",
+          league: leagueCode,
+        });
+      }
+    }
+    // Sort by wins desc
+    return rows.sort((a, b) => b.wins - a.wins);
+  } catch (err) {
+    console.error("[mlb-api] Failed to fetch standings:", err);
+    return [];
+  }
+}
+
+// -------- Leaders --------
+
+export interface LeaderRow {
+  rank: number;
+  name: string;
+  teamAbbr: string;
+  value: string;
+}
+
+async function fetchLeaderCategory(category: string, season: number, statGroup: "hitting" | "pitching", limit = 5): Promise<LeaderRow[]> {
+  const url = `${MLB_API}/stats/leaders?leaderCategories=${category}&season=${season}&sportId=1&statGroup=${statGroup}&limit=${limit}`;
+  try {
+    const res = await fetch(url, { next: { revalidate: 1800 } });
+    if (!res.ok) throw new Error(`MLB leaders error: ${res.status}`);
+    const json = await res.json();
+    const leaders = json.leagueLeaders?.[0]?.leaders ?? [];
+    return leaders.slice(0, limit).map((l: { rank: number; person: { fullName: string }; team?: { id: number }; value: string }) => ({
+      rank: l.rank,
+      name: l.person.fullName,
+      teamAbbr: l.team ? (TEAM_ID_TO_ABBR[l.team.id] ?? "MLB") : "MLB",
+      value: l.value,
+    }));
+  } catch (err) {
+    console.error(`[mlb-api] Failed to fetch ${category} leaders:`, err);
+    return [];
+  }
+}
+
+export async function fetchLeaders(season?: number): Promise<{
+  avg: LeaderRow[];
+  hr: LeaderRow[];
+  era: LeaderRow[];
+}> {
+  const year = season ?? new Date().getUTCFullYear();
+  const [avg, hr, era] = await Promise.all([
+    fetchLeaderCategory("battingAverage", year, "hitting"),
+    fetchLeaderCategory("homeRuns", year, "hitting"),
+    fetchLeaderCategory("earnedRunAverage", year, "pitching"),
+  ]);
+  return { avg, hr, era };
 }
 
 /**

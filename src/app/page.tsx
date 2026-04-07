@@ -5,39 +5,10 @@ import StitchDivider from "@/components/vintage/StitchDivider";
 import RetroButton from "@/components/vintage/RetroButton";
 import TeamBadge from "@/components/vintage/TeamBadge";
 import { cn } from "@/lib/utils";
-import { fetchMlbGames } from "@/lib/mlb-api";
+import { fetchMlbGames, fetchStandings, fetchLeaders } from "@/lib/mlb-api";
 import { AdSlot } from "@/components/ads/AdSlot";
 
 export const revalidate = 60;
-
-const standings = [
-  { team: "BAL", name: "Orioles", w: 18, l: 8, pct: ".692" },
-  { team: "NYY", name: "Yankees", w: 17, l: 9, pct: ".654" },
-  { team: "LAD", name: "Dodgers", w: 16, l: 10, pct: ".615" },
-  { team: "ATL", name: "Braves", w: 15, l: 11, pct: ".577" },
-  { team: "HOU", name: "Astros", w: 14, l: 12, pct: ".538" },
-];
-
-const battingLeaders = [
-  { name: "J. Soto", team: "NYY", stat: ".348" },
-  { name: "M. Betts", team: "LAD", stat: ".342" },
-  { name: "R. Acuña", team: "ATL", stat: ".335" },
-  { name: "F. Tatis Jr.", team: "SDP", stat: ".329" },
-];
-
-const pitchingLeaders = [
-  { name: "G. Cole", team: "NYY", stat: "1.89" },
-  { name: "S. Strider", team: "ATL", stat: "2.05" },
-  { name: "C. Burnes", team: "BAL", stat: "2.18" },
-  { name: "Z. Wheeler", team: "PHI", stat: "2.31" },
-];
-
-const hrLeaders = [
-  { name: "A. Judge", team: "NYY", stat: "14" },
-  { name: "S. Ohtani", team: "LAD", stat: "12" },
-  { name: "P. Alonso", team: "NYM", stat: "11" },
-  { name: "K. Schwarber", team: "PHI", stat: "10" },
-];
 
 const ALL_TEAMS = [
   "ARI", "ATL", "BAL", "BOS", "CHC", "CHW", "CIN", "CLE", "COL", "DET",
@@ -46,8 +17,22 @@ const ALL_TEAMS = [
 ];
 
 export default async function HomePage() {
-  const allGames = await fetchMlbGames();
+  const [allGames, standingsAll, leaders] = await Promise.all([
+    fetchMlbGames(),
+    fetchStandings(),
+    fetchLeaders(),
+  ]);
   const todayGames = allGames.slice(0, 6);
+  const standings = standingsAll.slice(0, 5).map((s) => ({
+    team: s.abbr,
+    name: s.name.split(" ").slice(-1)[0],
+    w: s.wins,
+    l: s.losses,
+    pct: s.pct,
+  }));
+  const battingLeaders = leaders.avg.slice(0, 4).map((l) => ({ name: l.name, team: l.teamAbbr, stat: l.value }));
+  const hrLeaders = leaders.hr.slice(0, 4).map((l) => ({ name: l.name, team: l.teamAbbr, stat: l.value }));
+  const pitchingLeaders = leaders.era.slice(0, 4).map((l) => ({ name: l.name, team: l.teamAbbr, stat: l.value }));
 
   return (
     <div className="space-y-0 pb-12">

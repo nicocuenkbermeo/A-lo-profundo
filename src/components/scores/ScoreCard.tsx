@@ -86,7 +86,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
                 "font-sans text-sm",
                 awayWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
               )}>
-                {game.awayTeam.city} {game.awayTeam.name}
+                {game.awayTeam.name}
               </span>
             </div>
             {!isScheduled && (
@@ -110,7 +110,7 @@ export function ScoreCard({ game }: ScoreCardProps) {
                 "font-sans text-sm",
                 homeWinning && (isLive || isFinal) ? "font-bold text-[#3D2B1F]" : "text-[#3D2B1F]/70"
               )}>
-                {game.homeTeam.city} {game.homeTeam.name}
+                {game.homeTeam.name}
               </span>
             </div>
             {!isScheduled && (

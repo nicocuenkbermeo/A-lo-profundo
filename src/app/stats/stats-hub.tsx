@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { PlayerCard } from "@/components/stats/PlayerCard"
+import type { StandingRow, LeaderRow } from "@/lib/mlb-api"
 
 const tabs = [
   { key: "equipos", label: "Equipos" },
@@ -13,38 +14,42 @@ const tabs = [
 
 type TabKey = (typeof tabs)[number]["key"]
 
-const leagueLeaders = [
-  { category: "LIDER AVG", player: "Luis Arraez", team: "SD", value: ".354", stat: "AVG" },
-  { category: "LIDER HR", player: "Aaron Judge", team: "NYY", value: "58", stat: "HR" },
-  { category: "LIDER ERA", player: "Tarik Skubal", team: "DET", value: "2.39", stat: "ERA" },
-]
+interface StatsHubProps {
+  standings: StandingRow[];
+  leaders: { avg: LeaderRow[]; hr: LeaderRow[]; era: LeaderRow[] };
+}
 
-const topBatters = [
-  { id: "judge-1", name: "Aaron Judge", team: "NYY", teamColor: "#003087", position: "RF", number: 99, stats: [{ label: "AVG", value: ".322" }, { label: "HR", value: "58" }, { label: "RBI", value: "144" }, { label: "OPS", value: "1.159" }] },
-  { id: "ohtani-1", name: "Shohei Ohtani", team: "LAD", teamColor: "#005A9C", position: "DH", number: 17, stats: [{ label: "AVG", value: ".310" }, { label: "HR", value: "54" }, { label: "RBI", value: "130" }, { label: "OPS", value: "1.036" }] },
-  { id: "soto-1", name: "Juan Soto", team: "NYM", teamColor: "#002D72", position: "LF", number: 22, stats: [{ label: "AVG", value: ".288" }, { label: "HR", value: "41" }, { label: "RBI", value: "109" }, { label: "OPS", value: ".985" }] },
-  { id: "witt-1", name: "Bobby Witt Jr.", team: "KC", teamColor: "#004687", position: "SS", number: 7, stats: [{ label: "AVG", value: ".332" }, { label: "HR", value: "32" }, { label: "RBI", value: "106" }, { label: "OPS", value: ".977" }] },
-  { id: "arraez-1", name: "Luis Arraez", team: "SD", teamColor: "#2F241D", position: "1B", number: 4, stats: [{ label: "AVG", value: ".354" }, { label: "HR", value: "8" }, { label: "RBI", value: "58" }, { label: "OPS", value: ".859" }] },
-]
+function leaderToPlayerCard(l: LeaderRow, statLabel: string, idx: number) {
+  return {
+    id: `${statLabel}-${idx}`,
+    name: l.name,
+    team: l.teamAbbr,
+    teamColor: "#0D2240",
+    position: "",
+    number: idx + 1,
+    stats: [{ label: statLabel, value: l.value }],
+  };
+}
 
-const topPitchers = [
-  { id: "skubal-1", name: "Tarik Skubal", team: "DET", teamColor: "#0C2340", position: "SP", number: 29, stats: [{ label: "ERA", value: "2.39" }, { label: "W", value: "18" }, { label: "K", value: "228" }, { label: "WHIP", value: "0.92" }] },
-  { id: "sale-1", name: "Chris Sale", team: "ATL", teamColor: "#CE1141", position: "SP", number: 51, stats: [{ label: "ERA", value: "2.38" }, { label: "W", value: "18" }, { label: "K", value: "225" }, { label: "WHIP", value: "0.95" }] },
-  { id: "wheeler-1", name: "Zack Wheeler", team: "PHI", teamColor: "#E81828", position: "SP", number: 45, stats: [{ label: "ERA", value: "2.57" }, { label: "W", value: "16" }, { label: "K", value: "224" }, { label: "WHIP", value: "0.96" }] },
-  { id: "webb-1", name: "Logan Webb", team: "SF", teamColor: "#FD5A1E", position: "SP", number: 62, stats: [{ label: "ERA", value: "2.95" }, { label: "W", value: "15" }, { label: "K", value: "196" }, { label: "WHIP", value: "1.05" }] },
-  { id: "burns-1", name: "Corbin Burnes", team: "BAL", teamColor: "#DF4601", position: "SP", number: 39, stats: [{ label: "ERA", value: "2.92" }, { label: "W", value: "15" }, { label: "K", value: "181" }, { label: "WHIP", value: "1.10" }] },
-]
-
-const topTeams = [
-  { name: "Los Angeles Dodgers", abbr: "LAD", w: 98, l: 64, pct: ".605", color: "#005A9C" },
-  { name: "Philadelphia Phillies", abbr: "PHI", w: 95, l: 67, pct: ".586", color: "#E81828" },
-  { name: "New York Yankees", abbr: "NYY", w: 94, l: 68, pct: ".580", color: "#003087" },
-  { name: "Milwaukee Brewers", abbr: "MIL", w: 93, l: 69, pct: ".574", color: "#FFC52F" },
-  { name: "Cleveland Guardians", abbr: "CLE", w: 92, l: 70, pct: ".568", color: "#00385D" },
-]
-
-export function StatsHub() {
+export function StatsHub({ standings, leaders }: StatsHubProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("equipos")
+
+  const leagueLeaders = [
+    { category: "LIDER AVG", player: leaders.avg[0]?.name ?? "—", team: leaders.avg[0]?.teamAbbr ?? "", value: leaders.avg[0]?.value ?? "—" },
+    { category: "LIDER HR", player: leaders.hr[0]?.name ?? "—", team: leaders.hr[0]?.teamAbbr ?? "", value: leaders.hr[0]?.value ?? "—" },
+    { category: "LIDER ERA", player: leaders.era[0]?.name ?? "—", team: leaders.era[0]?.teamAbbr ?? "", value: leaders.era[0]?.value ?? "—" },
+  ]
+
+  const topBatters = leaders.avg.map((l, i) => leaderToPlayerCard(l, "AVG", i))
+  const topPitchers = leaders.era.map((l, i) => leaderToPlayerCard(l, "ERA", i))
+  const topTeams = standings.slice(0, 5).map((s) => ({
+    name: s.name,
+    abbr: s.abbr,
+    w: s.wins,
+    l: s.losses,
+    pct: s.pct,
+    color: "#0D2240",
+  }))
 
   return (
     <div className="space-y-8">
