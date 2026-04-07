@@ -162,30 +162,21 @@ function bestPlayInGame(plays: Play[]): {
   }
 
   // Fallback: WPA-ish. Score = runChange * lateInningWeight.
-  // runChange = abs((homeAfter - awayAfter) - (homePrev - awayPrev))
-  // Higher weight for later innings.
-  let prevHome = 0;
-  let prevAway = 0;
+  // Uses result.home/awayScore (post-play) vs about.home/awayScore (pre-play).
   let bestWpa: ScoredPlay | null = null;
   for (const p of plays) {
-    const hs = p.about.homeScore ?? 0;
-    const as = p.about.awayScore ?? 0;
-    if (!isRelevantPlay(p)) {
-      prevHome = hs;
-      prevAway = as;
-      continue;
-    }
-    const prevDiff = prevHome - prevAway;
-    const newDiff = hs - as;
-    const runChange = Math.abs(newDiff - prevDiff);
+    if (!isRelevantPlay(p)) continue;
+    const preHome = p.about.homeScore ?? 0;
+    const preAway = p.about.awayScore ?? 0;
+    const postHome = p.result.homeScore ?? preHome;
+    const postAway = p.result.awayScore ?? preAway;
+    const runChange = Math.abs((postHome - postAway) - (preHome - preAway));
     const inning = p.about.inning ?? 1;
     const lateWeight = 1 + Math.max(0, inning - 6) * 0.25; // 7th=1.25, 8th=1.5, 9th=1.75...
     const score = runChange * lateWeight;
     if (score > 0 && (!bestWpa || score > bestWpa.score)) {
       bestWpa = { play: p, score, source: "wpaHeuristic" };
     }
-    prevHome = hs;
-    prevAway = as;
   }
 
   return { best: bestWpa, considered, discarded };
@@ -301,15 +292,17 @@ export async function buildMomentOfDay(): Promise<MomentOfDayReport> {
     runners: pre.runners,
   });
 
-  const scoreAfter = {
+  // MLB feed convention:
+  //   play.about.homeScore/awayScore → marcador AL INICIO del at-bat
+  //   play.result.homeScore/awayScore → marcador AL FINAL del at-bat
+  const scoreBefore = {
     home: play.about.homeScore ?? 0,
     away: play.about.awayScore ?? 0,
   };
-  const scoreBefore = (() => {
-    if (idx === 0) return { home: 0, away: 0 };
-    const prev = allPlays[idx - 1];
-    return { home: prev.about.homeScore ?? 0, away: prev.about.awayScore ?? 0 };
-  })();
+  const scoreAfter = {
+    home: play.result.homeScore ?? play.about.homeScore ?? 0,
+    away: play.result.awayScore ?? play.about.awayScore ?? 0,
+  };
 
   const batterId = play.matchup.batter?.id ?? null;
   const pitcherId = play.matchup.pitcher?.id ?? null;
