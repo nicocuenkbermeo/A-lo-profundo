@@ -249,14 +249,17 @@ function buildJobsForGame(g: ScheduleGameWithLineups): VsJob[] {
   return jobs;
 }
 
-export async function buildDuelsReport(): Promise<DuelsReport> {
-  const date = todayBogota();
+/**
+ * @param date — YYYY-MM-DD to analyze. Defaults to today (Bogotá).
+ */
+export async function buildDuelsReport(date?: string): Promise<DuelsReport> {
+  const resolvedDate = date ?? todayBogota();
 
   // 1. Schedule with lineups
-  const schedule = await mlbFetch<ScheduleWithLineupsResponse>(scheduleWithLineups(date), {
+  const schedule = await mlbFetch<ScheduleWithLineupsResponse>(scheduleWithLineups(resolvedDate), {
     revalidate: 7200,
     tags: [MLB_TAGS.schedule, MLB_TAGS.duelOfDay],
-    label: `schedule:duels:${date}`,
+    label: `schedule:duels:${resolvedDate}`,
   });
 
   const games = schedule.dates?.[0]?.games ?? [];
@@ -296,7 +299,7 @@ export async function buildDuelsReport(): Promise<DuelsReport> {
   duels.sort((a, b) => b.juiciness - a.juiciness);
 
   return {
-    date,
+    date: resolvedDate,
     duels,
     stats: {
       gamesWithLineups,

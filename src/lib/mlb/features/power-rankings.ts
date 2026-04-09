@@ -161,10 +161,17 @@ function streakBonus(code: string | undefined): number {
 // Builder
 // ---------------------------------------------------------------------------
 
-export async function buildPowerRankings(): Promise<PowerRankingsReport> {
-  const season = getCurrentSeason();
+/**
+ * @param options.season — override season year (default: auto-detected).
+ * @param options.asOfDate — YYYY-MM-DD end of the 15-day stats window (default: today Bogotá).
+ */
+export async function buildPowerRankings(options?: {
+  season?: number;
+  asOfDate?: string;
+}): Promise<PowerRankingsReport> {
+  const season = options?.season ?? getCurrentSeason();
   const weekStart = mondayOfThisWeek();
-  const today = todayBogota();
+  const today = options?.asOfDate ?? todayBogota();
   const rangeStart = subtractDays(today, 15);
 
   // 1. Standings (one call).

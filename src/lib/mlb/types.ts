@@ -142,6 +142,66 @@ export interface TeamStatsResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Stats leaders (used by Feature 5 — Chase for History)
+// ---------------------------------------------------------------------------
+
+export interface StatsLeader {
+  rank: number;
+  value: string; // "12" for HR, ".312" for AVG
+  person: { id: number; fullName: string };
+  team?: { id: number; name: string };
+}
+
+export interface StatsLeadersCategory {
+  leaderCategory: string;
+  leaders: StatsLeader[];
+}
+
+export interface StatsLeadersResponse {
+  leagueLeaders: StatsLeadersCategory[];
+}
+
+// ---------------------------------------------------------------------------
+// Game log (used by Feature 5 — streaks detection)
+// ---------------------------------------------------------------------------
+
+export interface GameLogHittingStat {
+  gamesPlayed?: number;
+  atBats?: number;
+  hits?: number;
+  homeRuns?: number;
+  baseOnBalls?: number;
+  hitByPitch?: number;
+  sacFlies?: number;
+  plateAppearances?: number;
+  avg?: string;
+  ops?: string;
+}
+
+export interface GameLogPitchingStat {
+  inningsPitched?: string; // "6.0"
+  earnedRuns?: number;
+  runs?: number;
+  era?: string;
+}
+
+export interface GameLogSplit {
+  date: string; // "YYYY-MM-DD"
+  stat: GameLogHittingStat & GameLogPitchingStat;
+  team?: { id: number; name: string };
+  opponent?: { id: number; name: string };
+  isHome?: boolean;
+  game?: { gamePk: number };
+}
+
+export interface GameLogResponse {
+  stats: Array<{
+    group: { displayName: string };
+    splits: GameLogSplit[];
+  }>;
+}
+
+// ---------------------------------------------------------------------------
 // Schedule with lineups (used by Feature 3 — Duelo del Día)
 // ---------------------------------------------------------------------------
 

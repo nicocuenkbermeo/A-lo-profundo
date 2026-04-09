@@ -114,6 +114,23 @@ export function translatePlayContext(input: {
 }
 
 // ---------------------------------------------------------------------------
+// Chase for History — milestone labels (Feature 5, reused by F7)
+// ---------------------------------------------------------------------------
+
+export const CHASE_LABELS = {
+  hr50: "Camino a 50 HR",
+  sb50: "Camino a 50 bases robadas",
+  wins20: "Camino a 20 victorias",
+  avg300: "Persecución de .300",
+  hitStreak: "Racha de juegos con hit",
+  obStreak: "Racha de juegos embasándose",
+  scorelessStreak: "Innings en blanco consecutivos",
+} as const;
+
+export const CHASE_EARLY_SEASON_MSG =
+  "Las proyecciones se activan a partir del juego 40 de la temporada. Las rachas activas sí se muestran desde el día 1.";
+
+// ---------------------------------------------------------------------------
 // Player photo URL helper
 // ---------------------------------------------------------------------------
 

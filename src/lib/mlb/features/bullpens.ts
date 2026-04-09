@@ -129,8 +129,11 @@ interface Accum {
   days: Set<string>;
 }
 
-export async function buildBullpenReport(): Promise<BullpenReport> {
-  const today = todayInBogota();
+/**
+ * @param asOfDate — YYYY-MM-DD end of the 3-day window. Defaults to today (Bogotá).
+ */
+export async function buildBullpenReport(asOfDate?: string): Promise<BullpenReport> {
+  const today = asOfDate ?? todayInBogota();
   const start = subtractDays(today, 3);
   const end = today;
 

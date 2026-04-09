@@ -213,8 +213,11 @@ function preStateFor(plays: Play[], idx: number): {
 // Main builder
 // ---------------------------------------------------------------------------
 
-export async function buildMomentOfDay(): Promise<MomentOfDayReport> {
-  const date = yesterdayBogota();
+/**
+ * @param date — YYYY-MM-DD to analyze. Defaults to yesterday (Bogotá).
+ */
+export async function buildMomentOfDay(date?: string): Promise<MomentOfDayReport> {
+  date = date ?? yesterdayBogota();
 
   // 1. Schedule
   const schedule = await mlbFetch<ScheduleResponse>(scheduleByDate(date), {

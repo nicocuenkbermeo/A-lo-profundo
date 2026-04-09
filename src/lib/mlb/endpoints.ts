@@ -62,6 +62,40 @@ export function playerVsPlayer(batterId: number, pitcherId: number): string {
   return url.toString();
 }
 
+/** Stats leaders (HR, SB, AVG, W, etc.) for a season. */
+export function statsLeaders(params: {
+  category: string; // homeRuns, stolenBases, battingAverage, wins, strikeouts...
+  season: number;
+  statGroup: "hitting" | "pitching";
+  limit?: number;
+}): string {
+  const url = new URL(`${MLB_API_V1}/stats/leaders`);
+  url.searchParams.set("leaderCategories", params.category);
+  url.searchParams.set("season", String(params.season));
+  url.searchParams.set("sportId", "1");
+  url.searchParams.set("statGroup", params.statGroup);
+  url.searchParams.set("limit", String(params.limit ?? 20));
+  return url.toString();
+}
+
+/** Game log for a player in a season. */
+export function playerGameLog(personId: number, season: number): string {
+  const url = new URL(`${MLB_API_V1}/people/${personId}/stats`);
+  url.searchParams.set("stats", "gameLog");
+  url.searchParams.set("season", String(season));
+  url.searchParams.set("group", "hitting");
+  return url.toString();
+}
+
+/** Pitching game log for a player in a season. */
+export function pitcherGameLog(personId: number, season: number): string {
+  const url = new URL(`${MLB_API_V1}/people/${personId}/stats`);
+  url.searchParams.set("stats", "gameLog");
+  url.searchParams.set("season", String(season));
+  url.searchParams.set("group", "pitching");
+  return url.toString();
+}
+
 /** Team stats by date range — used for recent OPS / ERA windows. */
 export function teamStatsByDateRange(params: {
   teamId: number;
