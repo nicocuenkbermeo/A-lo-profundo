@@ -48,6 +48,20 @@ export function standings(season: number): string {
   return url.toString();
 }
 
+/** Schedule with probable pitchers and lineups (used by Feature 3). */
+export function scheduleWithLineups(date: string): string {
+  return scheduleByDate(date, "probablePitcher,lineups,team");
+}
+
+/** Batter vs pitcher career head-to-head stats. */
+export function playerVsPlayer(batterId: number, pitcherId: number): string {
+  const url = new URL(`${MLB_API_V1}/people/${batterId}/stats`);
+  url.searchParams.set("stats", "vsPlayer");
+  url.searchParams.set("opposingPlayerId", String(pitcherId));
+  url.searchParams.set("group", "hitting");
+  return url.toString();
+}
+
 /** Team stats by date range — used for recent OPS / ERA windows. */
 export function teamStatsByDateRange(params: {
   teamId: number;

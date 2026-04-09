@@ -142,6 +142,67 @@ export interface TeamStatsResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Schedule with lineups (used by Feature 3 — Duelo del Día)
+// ---------------------------------------------------------------------------
+
+export interface ProbablePitcher {
+  id: number;
+  fullName: string;
+}
+
+export interface LineupPlayer {
+  id: number;
+  fullName: string;
+}
+
+export interface ScheduleGameWithLineups {
+  gamePk: number;
+  gameDate: string;
+  status: { abstractGameState: string; detailedState: string; statusCode: string };
+  teams: {
+    home: {
+      team: { id: number; name: string };
+      probablePitcher?: ProbablePitcher;
+      lineups?: { batters?: LineupPlayer[] };
+    };
+    away: {
+      team: { id: number; name: string };
+      probablePitcher?: ProbablePitcher;
+      lineups?: { batters?: LineupPlayer[] };
+    };
+  };
+}
+
+export interface ScheduleWithLineupsResponse {
+  dates: Array<{ date: string; games: ScheduleGameWithLineups[] }>;
+}
+
+// ---------------------------------------------------------------------------
+// Batter vs Pitcher (used by Feature 3)
+// ---------------------------------------------------------------------------
+
+export interface VsPlayerSplit {
+  stat: {
+    atBats?: number;
+    hits?: number;
+    homeRuns?: number;
+    strikeOuts?: number;
+    avg?: string;
+    ops?: string;
+    rbi?: number;
+    baseOnBalls?: number;
+  };
+  player?: { id: number; fullName: string };
+}
+
+export interface VsPlayerResponse {
+  stats: Array<{
+    group: { displayName: string };
+    splits: VsPlayerSplit[];
+  }>;
+}
+
+// ---------------------------------------------------------------------------
 // Play-by-play (used by Feature 1 — Momento del Día, and later F3 + F7)
 // ---------------------------------------------------------------------------
 
