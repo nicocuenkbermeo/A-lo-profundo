@@ -17,6 +17,16 @@ const navLinks = [
   { href: "/trends", label: "Tendencias" },
 ];
 
+const featureLinks = [
+  { href: "/bullpens", label: "Bullpens" },
+  { href: "/power-rankings", label: "Power Rankings" },
+  { href: "/momento-del-dia", label: "Momento del Día" },
+  { href: "/duelos", label: "Duelos del Día" },
+  { href: "/chase", label: "Chase for History" },
+  { href: "/latinos", label: "Latino Tracker" },
+  { href: "/diario", label: "Lo Profundo del Día" },
+];
+
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-4 shrink-0">
@@ -85,7 +95,7 @@ export function Navbar() {
               </svg>
             </SheetTrigger>
             <SheetContent side="right" className="bg-[#0D2240] border-l-2 border-[#8B7355] w-64 p-0">
-              <div className="flex flex-col pt-12 px-6 gap-1">
+              <div className="flex flex-col pt-12 px-6 gap-1 overflow-y-auto max-h-[calc(100vh-3rem)]">
                 {navLinks.map((link) => {
                   const isActive = pathname === link.href;
                   return (
@@ -101,6 +111,26 @@ export function Navbar() {
                     </Link>
                   );
                 })}
+
+                <p className="font-display uppercase tracking-wider text-[10px] text-[#8B7355] mt-4 mb-1">
+                  Contenido
+                </p>
+                {featureLinks.map((link) => {
+                  const isActive = pathname === link.href || pathname?.startsWith(link.href + "/");
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={cn(
+                        "font-display tracking-wider text-sm py-2.5 border-b border-[#8B7355]/20 transition-colors",
+                        isActive ? "text-[#F5C842]" : "text-[#8FBCE6] hover:text-[#FDF6E3]"
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+
                 <Link
                   href="/auth/login"
                   className="mt-4 font-display uppercase tracking-wider text-sm bg-[#F5C842] text-[#3D2B1F] px-4 py-2 rounded-sm font-bold text-center"

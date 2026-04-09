@@ -88,13 +88,13 @@ export function StatsHub({ standings, leaders }: StatsHubProps) {
       </div>
 
       {/* ── Vintage Paper Tabs ── */}
-      <div className="flex gap-0 border-b-[3px] border-[#8B7355]">
+      <div className="flex gap-0 border-b-[3px] border-[#8B7355] overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={cn(
-              "px-6 py-3 text-sm font-[family-name:var(--font-display)] uppercase tracking-wider transition-colors border-[3px] border-b-0 rounded-t-sm -mb-[3px]",
+              "px-4 sm:px-6 py-3 text-sm font-[family-name:var(--font-display)] uppercase tracking-wider transition-colors border-[3px] border-b-0 rounded-t-sm -mb-[3px] whitespace-nowrap shrink-0",
               activeTab === tab.key
                 ? "bg-[#FDF6E3] border-[#8B7355] text-[#0D2240] font-bold"
                 : "bg-[#F5E6C8]/50 border-transparent text-[#8B7355] hover:text-[#3D2B1F] hover:bg-[#F5E6C8]"

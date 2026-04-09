@@ -257,7 +257,14 @@ export async function fetchTeamSchedule(teamId: number, daysBack = 30, daysForwa
     if (!res.ok) throw new Error(`MLB API error: ${res.status}`);
     const json = await res.json();
     const dates: { games: MlbApiGame[] }[] = json.dates ?? [];
-    const games = dates.flatMap((d) => d.games).map(buildGame);
+    const allGames = dates.flatMap((d) => d.games).map(buildGame);
+    // Deduplicate by game ID (API can return dupes across date boundaries)
+    const seen = new Set<string>();
+    const games = allGames.filter((g) => {
+      if (seen.has(g.id)) return false;
+      seen.add(g.id);
+      return true;
+    });
     // Newest first
     return games.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (err) {

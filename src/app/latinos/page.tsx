@@ -132,7 +132,7 @@ function EmptyCard({ text }: { text: string }) {
 
 function BattersTable({ batters, compact }: { batters: LatinoBatter[]; compact?: boolean }) {
   return (
-    <table className="w-full text-left bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+    <table className="w-full min-w-[600px] text-left bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
       <thead>
         <tr className="bg-[#0D2240] text-[#F5C842]">
           <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider">#</th>
@@ -174,7 +174,7 @@ function BattersTable({ batters, compact }: { batters: LatinoBatter[]; compact?:
 
 function PitchersTable({ pitchers, compact }: { pitchers: LatinoPitcher[]; compact?: boolean }) {
   return (
-    <table className="w-full text-left bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
+    <table className="w-full min-w-[600px] text-left bg-[#FDF6E3] border-[3px] border-[#8B7355] shadow-[4px_4px_0px_#5C4A32] rounded-sm">
       <thead>
         <tr className="bg-[#0D2240] text-[#F5C842]">
           <th className="px-3 py-2 font-display text-[10px] uppercase tracking-wider">#</th>
