@@ -1,0 +1,110 @@
+[
+  {
+    "gamePk": 823884,
+    "homeTeam": "MIA",
+    "awayTeam": "CIN",
+    "moneyline": {
+      "home": { "Betano": 1.95, "Betsson": 1.90, "Rivalo": 1.92, "Codere": 1.88, "Caliente": 1.91, "Bet365": 1.93 },
+      "away": { "Betano": 1.85, "Betsson": 1.90, "Rivalo": 1.88, "Codere": 1.92, "Caliente": 1.89, "Bet365": 1.87 }
+    },
+    "runLine": {
+      "home": { "line": -1.5, "odds": { "Betano": 2.45, "Betsson": 2.40, "Rivalo": 2.50, "Codere": 2.42, "Caliente": 2.48, "Bet365": 2.44 } },
+      "away": { "line": 1.5, "odds": { "Betano": 1.55, "Betsson": 1.58, "Rivalo": 1.52, "Codere": 1.56, "Caliente": 1.54, "Bet365": 1.57 } }
+    },
+    "total": {
+      "line": 8.5,
+      "over": { "Betano": 1.90, "Betsson": 1.88, "Rivalo": 1.92, "Codere": 1.87, "Caliente": 1.91, "Bet365": 1.89 },
+      "under": { "Betano": 1.90, "Betsson": 1.92, "Rivalo": 1.88, "Codere": 1.93, "Caliente": 1.89, "Bet365": 1.91 }
+    }
+  },
+  {
+    "gamePk": 823565,
+    "homeTeam": "NYY",
+    "awayTeam": "OAK",
+    "moneyline": {
+      "home": { "Betano": 1.45, "Betsson": 1.42, "Rivalo": 1.48, "Codere": 1.44, "Caliente": 1.46, "Bet365": 1.43 },
+      "away": { "Betano": 2.75, "Betsson": 2.80, "Rivalo": 2.70, "Codere": 2.78, "Caliente": 2.72, "Bet365": 2.82 }
+    },
+    "runLine": {
+      "home": { "line": -1.5, "odds": { "Betano": 1.75, "Betsson": 1.72, "Rivalo": 1.78, "Codere": 1.74, "Caliente": 1.76, "Bet365": 1.73 } },
+      "away": { "line": 1.5, "odds": { "Betano": 2.10, "Betsson": 2.12, "Rivalo": 2.08, "Codere": 2.11, "Caliente": 2.09, "Bet365": 2.13 } }
+    },
+    "total": {
+      "line": 9.0,
+      "over": { "Betano": 1.87, "Betsson": 1.85, "Rivalo": 1.90, "Codere": 1.86, "Caliente": 1.88, "Bet365": 1.84 },
+      "under": { "Betano": 1.93, "Betsson": 1.95, "Rivalo": 1.90, "Codere": 1.94, "Caliente": 1.92, "Bet365": 1.96 }
+    }
+  },
+  {
+    "gamePk": 823724,
+    "homeTeam": "MIN",
+    "awayTeam": "DET",
+    "moneyline": {
+      "home": { "Betano": 1.65, "Betsson": 1.62, "Rivalo": 1.68, "Codere": 1.64, "Caliente": 1.66, "Bet365": 1.63 },
+      "away": { "Betano": 2.25, "Betsson": 2.28, "Rivalo": 2.20, "Codere": 2.26, "Caliente": 2.22, "Bet365": 2.30 }
+    },
+    "runLine": {
+      "home": { "line": -1.5, "odds": { "Betano": 2.20, "Betsson": 2.18, "Rivalo": 2.25, "Codere": 2.19, "Caliente": 2.22, "Bet365": 2.17 } },
+      "away": { "line": 1.5, "odds": { "Betano": 1.70, "Betsson": 1.72, "Rivalo": 1.68, "Codere": 1.71, "Caliente": 1.69, "Bet365": 1.73 } }
+    },
+    "total": {
+      "line": 8.0,
+      "over": { "Betano": 1.92, "Betsson": 1.90, "Rivalo": 1.95, "Codere": 1.91, "Caliente": 1.93, "Bet365": 1.89 },
+      "under": { "Betano": 1.88, "Betsson": 1.90, "Rivalo": 1.85, "Codere": 1.89, "Caliente": 1.87, "Bet365": 1.91 }
+    }
+  },
+  {
+    "gamePk": 823645,
+    "homeTeam": "NYM",
+    "awayTeam": "ARI",
+    "moneyline": {
+      "home": { "Betano": 1.72, "Betsson": 1.70, "Rivalo": 1.75, "Codere": 1.71, "Caliente": 1.73, "Bet365": 1.69 },
+      "away": { "Betano": 2.15, "Betsson": 2.18, "Rivalo": 2.10, "Codere": 2.16, "Caliente": 2.12, "Bet365": 2.20 }
+    },
+    "runLine": {
+      "home": { "line": -1.5, "odds": { "Betano": 2.30, "Betsson": 2.28, "Rivalo": 2.35, "Codere": 2.29, "Caliente": 2.32, "Bet365": 2.27 } },
+      "away": { "line": 1.5, "odds": { "Betano": 1.62, "Betsson": 1.64, "Rivalo": 1.60, "Codere": 1.63, "Caliente": 1.61, "Bet365": 1.65 } }
+    },
+    "total": {
+      "line": 8.5,
+      "over": { "Betano": 1.85, "Betsson": 1.83, "Rivalo": 1.88, "Codere": 1.84, "Caliente": 1.86, "Bet365": 1.82 },
+      "under": { "Betano": 1.95, "Betsson": 1.97, "Rivalo": 1.92, "Codere": 1.96, "Caliente": 1.94, "Bet365": 1.98 }
+    }
+  },
+  {
+    "gamePk": 824130,
+    "homeTeam": "KCR",
+    "awayTeam": "CHW",
+    "moneyline": {
+      "home": { "Betano": 1.50, "Betsson": 1.48, "Rivalo": 1.52, "Codere": 1.49, "Caliente": 1.51, "Bet365": 1.47 },
+      "away": { "Betano": 2.65, "Betsson": 2.68, "Rivalo": 2.60, "Codere": 2.66, "Caliente": 2.62, "Bet365": 2.70 }
+    },
+    "runLine": {
+      "home": { "line": -1.5, "odds": { "Betano": 1.80, "Betsson": 1.78, "Rivalo": 1.85, "Codere": 1.79, "Caliente": 1.82, "Bet365": 1.77 } },
+      "away": { "line": 1.5, "odds": { "Betano": 2.05, "Betsson": 2.08, "Rivalo": 2.00, "Codere": 2.06, "Caliente": 2.03, "Bet365": 2.09 } }
+    },
+    "total": {
+      "line": 9.5,
+      "over": { "Betano": 1.88, "Betsson": 1.86, "Rivalo": 1.91, "Codere": 1.87, "Caliente": 1.89, "Bet365": 1.85 },
+      "under": { "Betano": 1.92, "Betsson": 1.94, "Rivalo": 1.89, "Codere": 1.93, "Caliente": 1.91, "Bet365": 1.95 }
+    }
+  },
+  {
+    "gamePk": 823319,
+    "homeTeam": "SDP",
+    "awayTeam": "COL",
+    "moneyline": {
+      "home": { "Betano": 1.38, "Betsson": 1.36, "Rivalo": 1.40, "Codere": 1.37, "Caliente": 1.39, "Bet365": 1.35 },
+      "away": { "Betano": 3.10, "Betsson": 3.15, "Rivalo": 3.05, "Codere": 3.12, "Caliente": 3.08, "Bet365": 3.18 }
+    },
+    "runLine": {
+      "home": { "line": -1.5, "odds": { "Betano": 1.65, "Betsson": 1.62, "Rivalo": 1.68, "Codere": 1.64, "Caliente": 1.66, "Bet365": 1.61 } },
+      "away": { "line": 1.5, "odds": { "Betano": 2.25, "Betsson": 2.28, "Rivalo": 2.20, "Codere": 2.26, "Caliente": 2.22, "Bet365": 2.30 } }
+    },
+    "total": {
+      "line": 9.0,
+      "over": { "Betano": 1.90, "Betsson": 1.88, "Rivalo": 1.93, "Codere": 1.89, "Caliente": 1.91, "Bet365": 1.87 },
+      "under": { "Betano": 1.90, "Betsson": 1.92, "Rivalo": 1.87, "Codere": 1.91, "Caliente": 1.89, "Bet365": 1.93 }
+    }
+  }
+]
