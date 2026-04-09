@@ -18,6 +18,7 @@ const navLinks = [
 ];
 
 const featureLinks = [
+  { href: "/predicciones", label: "Predicciones" },
   { href: "/bullpens", label: "Bullpens" },
   { href: "/power-rankings", label: "Power Rankings" },
   { href: "/momento-del-dia", label: "Momento del Día" },

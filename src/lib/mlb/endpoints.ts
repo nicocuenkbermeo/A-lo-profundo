@@ -118,6 +118,15 @@ export function playerStatsByDateRange(params: {
   return url.toString();
 }
 
+/** Season stats for a single player (hitting or pitching). */
+export function playerSeasonStats(personId: number, season: number, group: "hitting" | "pitching"): string {
+  const url = new URL(`${MLB_API_V1}/people/${personId}/stats`);
+  url.searchParams.set("stats", "season");
+  url.searchParams.set("season", String(season));
+  url.searchParams.set("group", group);
+  return url.toString();
+}
+
 /** Team stats by date range — used for recent OPS / ERA windows. */
 export function teamStatsByDateRange(params: {
   teamId: number;

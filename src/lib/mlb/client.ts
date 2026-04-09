@@ -136,6 +136,7 @@ export const MLB_TAGS = {
   chase: "mlb:chase",
   latinos: "mlb:latinos",
   dailyRecap: "mlb:daily-recap",
+  predictions: "mlb:predictions",
 } as const;
 
 export type MlbTag = (typeof MLB_TAGS)[keyof typeof MLB_TAGS];
