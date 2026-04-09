@@ -96,6 +96,28 @@ export function pitcherGameLog(personId: number, season: number): string {
   return url.toString();
 }
 
+/** All active MLB players for a season. */
+export function allPlayers(season: number): string {
+  return `${MLB_API_V1}/sports/1/players?season=${season}`;
+}
+
+/** Individual player stats by date range. */
+export function playerStatsByDateRange(params: {
+  personId: number;
+  group: "hitting" | "pitching";
+  startDate: string;
+  endDate: string;
+  season: number;
+}): string {
+  const url = new URL(`${MLB_API_V1}/people/${params.personId}/stats`);
+  url.searchParams.set("stats", "byDateRange");
+  url.searchParams.set("group", params.group);
+  url.searchParams.set("startDate", params.startDate);
+  url.searchParams.set("endDate", params.endDate);
+  url.searchParams.set("season", String(params.season));
+  return url.toString();
+}
+
 /** Team stats by date range — used for recent OPS / ERA windows. */
 export function teamStatsByDateRange(params: {
   teamId: number;

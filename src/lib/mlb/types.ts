@@ -142,6 +142,59 @@ export interface TeamStatsResponse {
 }
 
 // ---------------------------------------------------------------------------
+// All players roster (used by Feature 2 — Latino Tracker)
+// ---------------------------------------------------------------------------
+
+export interface PlayerBioEntry {
+  id: number;
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  birthCountry?: string;
+  birthCity?: string;
+  primaryPosition?: { code: string; name: string; abbreviation: string };
+  currentTeam?: { id: number; name: string };
+  mlbDebutDate?: string; // "YYYY-MM-DD"
+  active?: boolean;
+}
+
+export interface AllPlayersResponse {
+  people: PlayerBioEntry[];
+}
+
+// Individual player stats by date range (reuses TeamStatsSplit shape)
+export interface PlayerDateRangeResponse {
+  stats: Array<{
+    group: { displayName: string };
+    splits: Array<{
+      stat: {
+        gamesPlayed?: number;
+        atBats?: number;
+        hits?: number;
+        homeRuns?: number;
+        rbi?: number;
+        stolenBases?: number;
+        baseOnBalls?: number;
+        strikeOuts?: number;
+        avg?: string;
+        obp?: string;
+        slg?: string;
+        ops?: string;
+        plateAppearances?: number;
+        // pitching
+        inningsPitched?: string;
+        earnedRuns?: number;
+        era?: string;
+        whip?: string;
+        wins?: number;
+        losses?: number;
+        strikeouts?: number; // pitching K total
+      };
+    }>;
+  }>;
+}
+
+// ---------------------------------------------------------------------------
 // Stats leaders (used by Feature 5 — Chase for History)
 // ---------------------------------------------------------------------------
 
