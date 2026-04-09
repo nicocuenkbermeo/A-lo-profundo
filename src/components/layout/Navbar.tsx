@@ -22,6 +22,7 @@ const featureLinks = [
   { href: "/track-record", label: "Track Record" },
   { href: "/cuotas", label: "Cuotas" },
   { href: "/value-bets", label: "Value Bets" },
+  { href: "/calculadora", label: "Calculadora" },
   { href: "/bullpens", label: "Bullpens" },
   { href: "/power-rankings", label: "Power Rankings" },
   { href: "/momento-del-dia", label: "Momento del Día" },
