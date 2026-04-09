@@ -103,7 +103,12 @@ const MONTH_NAMES: Record<string, string> = {
 // Main builder
 // ---------------------------------------------------------------------------
 
-export async function buildRoiReport(): Promise<RoiReport> {
+export interface RoiOptions {
+  /** Filter to only include picks from a specific model version. */
+  modelVersion?: string;
+}
+
+export async function buildRoiReport(options?: RoiOptions): Promise<RoiReport> {
   // Read history from Vercel Blob
   let history: Record<string, PredictionHistoryEntry[]> = {};
   try {
@@ -116,11 +121,12 @@ export async function buildRoiReport(): Promise<RoiReport> {
     // Empty history on error
   }
 
-  // Flatten all settled entries
+  // Flatten all settled entries, optionally filtered by model version
   const allSettled: Array<PredictionHistoryEntry & { date: string }> = [];
   for (const [date, entries] of Object.entries(history)) {
     for (const entry of entries) {
       if (entry.result === "win" || entry.result === "loss") {
+        if (options?.modelVersion && entry.modelVersion !== options.modelVersion) continue;
         allSettled.push({ ...entry, date });
       }
     }

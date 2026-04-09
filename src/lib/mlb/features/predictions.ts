@@ -20,12 +20,15 @@ import {
   playerSeasonStats,
 } from "../endpoints";
 import { getCurrentSeason } from "../season";
+import { buildBullpenReport, type BullpenStatus } from "./bullpens";
 import type {
   StandingsResponse,
   StandingTeamRecord,
   ScheduleWithLineupsResponse,
   ScheduleGameWithLineups,
 } from "../types";
+
+export const MODEL_VERSION = "1.1";
 
 const BOGOTA_TZ = "America/Bogota";
 
@@ -89,6 +92,7 @@ export interface PredictionHistoryEntry {
   awayTeam: string;
   actualWinner: string | null;
   result: "pending" | "win" | "loss";
+  modelVersion?: string;
 }
 
 export interface PredictionHistoryFile {
@@ -147,6 +151,18 @@ function recentFormAdjustment(last10Wins: number): number {
   return clamp((last10Wins - 5) * 0.013, -0.04, 0.04);
 }
 
+/**
+ * Convert bullpen fatigue status to a probability score.
+ * green (fresh) = +0.015, yellow (tired) = 0, red (exhausted) = -0.015
+ */
+function bullpenStateToScore(state: BullpenStatus): number {
+  switch (state) {
+    case "green":  return +0.015;
+    case "yellow": return 0;
+    case "red":    return -0.015;
+  }
+}
+
 function confidenceLevel(conf: number): "high" | "medium" | "low" {
   if (conf >= 0.65) return "high";
   if (conf >= 0.55) return "medium";
@@ -172,6 +188,11 @@ function buildNarrative(game: GamePrediction): string {
   if (Math.abs(breakdown.recentFormDelta) >= 0.02) {
     const hotTeam = breakdown.recentFormDelta > 0 ? homeTeam : awayTeam;
     parts.push(`${hotTeam.abbreviation} viene en racha caliente.`);
+  }
+
+  if (Math.abs(breakdown.bullpenDelta) >= 0.02) {
+    const freshTeam = breakdown.bullpenDelta > 0 ? homeTeam : awayTeam;
+    parts.push(`El bullpen de ${freshTeam.abbreviation} está más fresco, lo que refuerza su ventaja.`);
   }
 
   if (game.earlySeason) {
@@ -274,8 +295,22 @@ export async function buildPredictions(dateOverride?: string): Promise<Predictio
   const date = dateOverride ?? todayBogota();
   const season = getCurrentSeason();
 
-  // 1. Fetch standings (all teams at once)
-  const standingsMap = await fetchStandingsMap(season);
+  // 1. Fetch standings and bullpen report in parallel
+  const [standingsMap, bullpenReport] = await Promise.all([
+    fetchStandingsMap(season),
+    buildBullpenReport().catch((err) => {
+      console.warn("[predictions] bullpen report failed, using neutral:", err);
+      return null;
+    }),
+  ]);
+
+  // Build abbreviation → bullpen status map for O(1) lookup
+  const bullpenStatusMap = new Map<string, BullpenStatus>();
+  if (bullpenReport) {
+    for (const team of bullpenReport.teams) {
+      bullpenStatusMap.set(team.abbreviation, team.status);
+    }
+  }
 
   // 2. Fetch today's schedule with probable pitchers
   const scheduleData = await mlbFetch<ScheduleWithLineupsResponse>(
@@ -349,9 +384,18 @@ export async function buildPredictions(dateOverride?: string): Promise<Predictio
     const recentFormDelta = homeFormAdj - awayFormAdj;
     homeBaseProb += recentFormDelta;
 
-    // Bullpen delta — simplified: use run differential as a proxy
-    // (full bullpen integration would require importing the bullpen feature)
-    const bullpenDelta = 0; // placeholder — can integrate buildBullpenReport later
+    // Bullpen delta from Feature 6 bullpen fatigue report
+    const homeBullpenState = bullpenStatusMap.get(homeAbbr);
+    const awayBullpenState = bullpenStatusMap.get(awayAbbr);
+    if (!homeBullpenState && bullpenReport) {
+      console.warn(`[predictions] no bullpen data for ${homeAbbr}, assuming yellow`);
+    }
+    if (!awayBullpenState && bullpenReport) {
+      console.warn(`[predictions] no bullpen data for ${awayAbbr}, assuming yellow`);
+    }
+    const bullpenDelta =
+      bullpenStateToScore(homeBullpenState ?? "yellow") -
+      bullpenStateToScore(awayBullpenState ?? "yellow");
 
     homeBaseProb += bullpenDelta;
 
@@ -433,5 +477,6 @@ export function predictionsToHistory(report: PredictionsReport): PredictionHisto
       awayTeam: g.awayTeam.abbreviation,
       actualWinner: null,
       result: "pending" as const,
+      modelVersion: MODEL_VERSION,
     }));
 }
