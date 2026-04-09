@@ -45,11 +45,19 @@ async function writeHistory(history: PredictionHistoryFile): Promise<void> {
 }
 
 export async function POST(request: Request) {
-  const url = new URL(request.url);
-  const key = url.searchParams.get("key");
   const adminSecret = process.env.ADMIN_SECRET;
+  if (!adminSecret) {
+    return NextResponse.json({ error: "ADMIN_SECRET not configured" }, { status: 500 });
+  }
 
-  if (!adminSecret || key !== adminSecret) {
+  // Accept token from Authorization header or query param
+  const authHeader = request.headers.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const url = new URL(request.url);
+  const queryKey = url.searchParams.get("key");
+  const token = bearerToken ?? queryKey;
+
+  if (token !== adminSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
