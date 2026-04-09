@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { href: "/", icon: "🏟️", label: "Inicio" },
   { href: "/scores", icon: "⚾", label: "Scores" },
+  { href: "/predicciones", icon: "🎯", label: "Picks" },
+  { href: "/latinos", icon: "🌎", label: "Latinos" },
   { href: "/stats", icon: "📊", label: "Stats" },
-  { href: "/trends", icon: "📈", label: "Tendencias" },
 ];
 
 export function MobileNav() {
@@ -16,16 +17,19 @@ export function MobileNav() {
 
   return (
     <nav className="fixed bottom-0 z-50 w-full bg-[#0D2240] border-t-2 border-[#8B7355] lg:hidden">
-      <div className="flex items-center justify-around py-2">
+      <div className="flex items-center justify-around py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
         {tabs.map((tab) => {
-          const isActive = pathname === tab.href || pathname?.startsWith(tab.href + "/");
+          const isActive =
+            tab.href === "/"
+              ? pathname === "/"
+              : pathname === tab.href || pathname?.startsWith(tab.href + "/");
           return (
             <Link
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 min-w-0 px-1 transition-colors",
-                isActive ? "text-[#F5C842]" : "text-[#8FBCE6]"
+                "flex flex-col items-center gap-0.5 min-w-0 px-1 py-1 transition-colors min-h-[48px] justify-center",
+                isActive ? "text-[#F5C842]" : "text-[#8FBCE6]",
               )}
             >
               <span className="text-lg leading-none">{tab.icon}</span>

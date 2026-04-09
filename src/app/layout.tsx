@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Crimson_Text, JetBrains_Mono, Special_Elite } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navigation } from "@/components/layout/Navigation";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
 import { AdSenseScript } from "@/components/ads/AdSenseScript";
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-background text-foreground antialiased diamond-pattern">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <div className="flex min-h-screen flex-col">
-            <Navbar />
+            <Navigation />
             <main className="flex-1 pb-20 lg:pb-0">{children}</main>
             <Footer />
             <MobileNav />
