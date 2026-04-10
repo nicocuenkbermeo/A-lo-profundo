@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/save-predictions",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/settle-predictions",
+      "schedule": "0 11 * * *"
+    }
+  ]
+}
