@@ -13,7 +13,16 @@ import { buildPowerRankings } from "@/lib/mlb/features/power-rankings";
 import { buildLatinoReport } from "@/lib/mlb/features/latinos";
 import { COUNTRIES_ES } from "@/lib/i18n/translations";
 
-export const revalidate = 60;
+// Revalidate every 60s during game hours (12pm-1am Bogota), every 5min otherwise
+function getRevalidateSeconds(): number {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/Bogota", hour: "numeric", hour12: false }).format(new Date())
+  );
+  // MLB games typically run 12pm - 1am Bogota time
+  return (hour >= 12 || hour < 1) ? 60 : 300;
+}
+
+export const revalidate = getRevalidateSeconds();
 
 const ALL_TEAMS = [
   "ARI", "ATL", "BAL", "BOS", "CHC", "CHW", "CIN", "CLE", "COL", "DET",
