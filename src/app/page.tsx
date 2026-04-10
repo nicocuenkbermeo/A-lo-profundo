@@ -287,7 +287,8 @@ async function PredictionsWidget() {
         </div>
       </section>
     );
-  } catch {
+  } catch (e) {
+    console.error("[PredictionsWidget]", e);
     return null;
   }
 }
@@ -330,7 +331,8 @@ async function PowerRankingsWidget() {
         </div>
       </section>
     );
-  } catch {
+  } catch (e) {
+    console.error("[PowerRankingsWidget]", e);
     return null;
   }
 }
@@ -381,7 +383,8 @@ async function LatinosWidget() {
         </div>
       </section>
     );
-  } catch {
+  } catch (e) {
+    console.error("[LatinosWidget]", e);
     return null;
   }
 }
