@@ -27,22 +27,27 @@ export function Footer() {
         ⚾ Tu fuente de béisbol profundo
       </p>
 
-      {/* Bottom row */}
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[#8FBCE6] text-xs font-display">
-        <span>© {new Date().getFullYear()} A lo Profundo</span>
-        <div className="flex items-center gap-3">
-          <Link href="/about" className="hover:text-[#FDF6E3] transition-colors">
-            Sobre Nosotros
-          </Link>
+      {/* Links row */}
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-[#8FBCE6] text-xs font-display">
+        <span>© {new Date().getFullYear()} A lo Profundo · Medio editorial independiente</span>
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <Link href="/about" className="hover:text-[#FDF6E3] transition-colors">Sobre Nosotros</Link>
           <span className="text-[#8B7355]">|</span>
-          <Link href="/terms" className="hover:text-[#FDF6E3] transition-colors">
-            Términos
-          </Link>
+          <Link href="/metodologia" className="hover:text-[#FDF6E3] transition-colors">Metodología</Link>
           <span className="text-[#8B7355]">|</span>
-          <Link href="/contact" className="hover:text-[#FDF6E3] transition-colors">
-            Contacto
-          </Link>
+          <Link href="/sabermetria" className="hover:text-[#FDF6E3] transition-colors">Sabermetría</Link>
+          <span className="text-[#8B7355]">|</span>
+          <Link href="/terms" className="hover:text-[#FDF6E3] transition-colors">Términos</Link>
+          <span className="text-[#8B7355]">|</span>
+          <Link href="/privacy" className="hover:text-[#FDF6E3] transition-colors">Privacidad</Link>
+          <span className="text-[#8B7355]">|</span>
+          <Link href="/contact" className="hover:text-[#FDF6E3] transition-colors">Contacto</Link>
         </div>
+      </div>
+
+      {/* Disclaimer de apuestas */}
+      <div className="max-w-5xl mx-auto mt-6 pt-4 border-t border-[#8B7355]/30 text-center text-[#8FBCE6]/70 text-[11px] font-display leading-relaxed px-4">
+        <p>A lo Profundo es un medio informativo. Las secciones relacionadas con cuotas y probabilidades son estadísticas y están dirigidas a mayores de 18 años. No promovemos ni facilitamos apuestas. Apostar dinero conlleva riesgo financiero y puede ser adictivo; juega responsablemente. A lo Profundo no está afiliado oficialmente con la MLB.</p>
       </div>
     </footer>
   );
