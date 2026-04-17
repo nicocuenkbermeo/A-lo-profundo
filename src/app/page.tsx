@@ -22,8 +22,7 @@ function getRevalidateSeconds(): number {
   return (hour >= 12 || hour < 1) ? 60 : 300;
 }
 
-export const revalidate = getRevalidateSeconds();
-
+export const revalidate = 60; // Next.js App Router requires a static value; dynamic schedule via getRevalidateSeconds() can be used in fetch options instead
 const ALL_TEAMS = [
   "ARI", "ATL", "BAL", "BOS", "CHC", "CHW", "CIN", "CLE", "COL", "DET",
   "HOU", "KCR", "LAA", "LAD", "MIA", "MIL", "MIN", "NYM", "NYY", "OAK",
