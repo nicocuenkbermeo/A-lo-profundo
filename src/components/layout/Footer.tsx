@@ -39,6 +39,10 @@ export function Footer() {
             Términos
           </Link>
           <span className="text-[#8B7355]">|</span>
+          <Link href="/privacy" className="hover:text-[#FDF6E3] transition-colors">
+            Privacidad
+          </Link>
+          <span className="text-[#8B7355]">|</span>
           <Link href="/contact" className="hover:text-[#FDF6E3] transition-colors">
             Contacto
           </Link>

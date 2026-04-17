@@ -1,108 +1,91 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { fetchGameDetail } from "@/lib/mlb-api";
+import { requireCron } from "@/lib/admin-auth";
+
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+  const guard = requireCron(request);
+  if (!guard.ok) return guard.response;
 
-    // Find all LIVE games
+  try {
     const liveGames = await prisma.game.findMany({
-      where: { status: "LIVE" },
-      include: { innings: true },
+      where: { status: { in: ["LIVE", "SCHEDULED"] } },
+      select: { id: true, externalId: true },
     });
 
     if (liveGames.length === 0) {
       return NextResponse.json({
         success: true,
-        data: { message: "No live games to update", updated: 0 },
+        data: { message: "No games to update", updated: 0 },
       });
     }
 
     let updated = 0;
+    const errors: Array<{ gameId: string; error: string }> = [];
 
     for (const game of liveGames) {
-      // Simulate score progression
-      const addHomeRuns = Math.random() < 0.3 ? Math.floor(Math.random() * 3) : 0;
-      const addAwayRuns = Math.random() < 0.3 ? Math.floor(Math.random() * 3) : 0;
-
-      const currentInning = game.inning ?? 1;
-      const currentHalf = game.inningHalf ?? "TOP";
-
-      let newInning = currentInning;
-      let newHalf = currentHalf;
-      let newOuts = game.outs + Math.floor(Math.random() * 3);
-      let newStatus = game.status;
-
-      if (newOuts >= 3) {
-        newOuts = 0;
-        if (currentHalf === "TOP") {
-          newHalf = "BOTTOM";
-        } else {
-          newHalf = "TOP";
-          newInning = currentInning + 1;
+      try {
+        const detail = await fetchGameDetail(game.externalId);
+        if (!detail) {
+          errors.push({ gameId: game.id, error: "No live feed returned" });
+          continue;
         }
-      }
 
-      // Game ends after 9th inning bottom (or top if home leading)
-      if (newInning > 9 && newHalf === "TOP") {
-        const homeTotal = game.homeScore + addHomeRuns;
-        const awayTotal = game.awayScore + addAwayRuns;
-        if (homeTotal !== awayTotal) {
-          newStatus = "FINAL";
-          newInning = 9;
-          newHalf = "BOTTOM";
-        }
-      }
+        await prisma.$transaction(async (tx) => {
+          await tx.game.update({
+            where: { id: game.id },
+            data: {
+              homeScore: detail.home.score ?? 0,
+              awayScore: detail.away.score ?? 0,
+              inning: detail.inning ?? null,
+              inningHalf: detail.inningHalf ?? null,
+              outs: detail.outs ?? 0,
+              status: detail.status,
+            },
+          });
 
-      // Upsert inning data
-      if (addHomeRuns > 0 || addAwayRuns > 0) {
-        await prisma.gameInning.upsert({
-          where: {
-            gameId_inningNumber: { gameId: game.id, inningNumber: currentInning },
-          },
-          update: {
-            homeRuns: { increment: addHomeRuns },
-            awayRuns: { increment: addAwayRuns },
-          },
-          create: {
-            gameId: game.id,
-            inningNumber: currentInning,
-            homeRuns: addHomeRuns,
-            awayRuns: addAwayRuns,
-          },
+          if (Array.isArray(detail.innings)) {
+            for (const inn of detail.innings) {
+              await tx.gameInning.upsert({
+                where: {
+                  gameId_inningNumber: {
+                    gameId: game.id,
+                    inningNumber: inn.inningNumber,
+                  },
+                },
+                update: { homeRuns: inn.homeRuns, awayRuns: inn.awayRuns },
+                create: {
+                  gameId: game.id,
+                  inningNumber: inn.inningNumber,
+                  homeRuns: inn.homeRuns,
+                  awayRuns: inn.awayRuns,
+                },
+              });
+            }
+          }
+        });
+
+        updated++;
+      } catch (err) {
+        errors.push({
+          gameId: game.id,
+          error: err instanceof Error ? err.message : "unknown",
         });
       }
-
-      await prisma.game.update({
-        where: { id: game.id },
-        data: {
-          homeScore: { increment: addHomeRuns },
-          awayScore: { increment: addAwayRuns },
-          inning: newInning,
-          inningHalf: newHalf as any,
-          outs: newOuts,
-          status: newStatus as any,
-        },
-      });
-
-      updated++;
     }
 
     return NextResponse.json({
       success: true,
-      data: { message: `Updated ${updated} live games`, updated },
+      data: { message: `Updated ${updated}/${liveGames.length} games`, updated, errors },
     });
   } catch (error) {
-    console.error("Error updating scores:", error);
+    console.error("[cron:update-scores] error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update scores" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

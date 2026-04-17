@@ -13,16 +13,9 @@ import { buildPowerRankings } from "@/lib/mlb/features/power-rankings";
 import { buildLatinoReport } from "@/lib/mlb/features/latinos";
 import { COUNTRIES_ES } from "@/lib/i18n/translations";
 
-// Revalidate every 60s during game hours (12pm-1am Bogota), every 5min otherwise
-function getRevalidateSeconds(): number {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-US", { timeZone: "America/Bogota", hour: "numeric", hour12: false }).format(new Date())
-  );
-  // MLB games typically run 12pm - 1am Bogota time
-  return (hour >= 12 || hour < 1) ? 60 : 300;
-}
+// Revalidate every 60s; fetchMlbGames has its own longer cache for off-hours.
+export const revalidate = 60;
 
-export const revalidate = 60; // Next.js App Router requires a static value; dynamic schedule via getRevalidateSeconds() can be used in fetch options instead
 const ALL_TEAMS = [
   "ARI", "ATL", "BAL", "BOS", "CHC", "CHW", "CIN", "CLE", "COL", "DET",
   "HOU", "KCR", "LAA", "LAD", "MIA", "MIL", "MIN", "NYM", "NYY", "OAK",

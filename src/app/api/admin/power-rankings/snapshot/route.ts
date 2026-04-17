@@ -1,32 +1,22 @@
 // Admin-gated endpoint to generate a weekly snapshot of the Power Rankings.
 //
-// Usage (from a cron / human):
+// Usage:
 //
 //   curl -X POST https://aloprofundomlb.com/api/admin/power-rankings/snapshot \
-//        -H "x-admin-token: $ADMIN_TOKEN"
+//        -H "Authorization: Bearer $ADMIN_SECRET"
 //
-// The response is the JSON blob to append to
-// public/data/power-rankings-history.json — either commit it manually or via
-// a GitHub Action. The file itself is read-only at runtime on Vercel.
+// Response is the JSON blob to append to
+// public/data/power-rankings-history.json — commit manually or via GitHub Action.
 
 import { NextResponse } from "next/server";
 import { buildPowerRankings, rankingsToSnapshot } from "@/lib/mlb/features/power-rankings";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  const token = request.headers.get("x-admin-token");
-  const expected = process.env.ADMIN_TOKEN;
-
-  if (!expected) {
-    return NextResponse.json(
-      { success: false, error: "ADMIN_TOKEN no configurado en el servidor." },
-      { status: 500 },
-    );
-  }
-  if (token !== expected) {
-    return NextResponse.json({ success: false, error: "No autorizado" }, { status: 401 });
-  }
+  const guard = requireAdmin(request);
+  if (!guard.ok) return guard.response;
 
   try {
     const report = await buildPowerRankings();

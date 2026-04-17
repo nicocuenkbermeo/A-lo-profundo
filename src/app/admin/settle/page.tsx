@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export default function AdminSettlePage() {
   const [token, setToken] = useState("");
@@ -15,16 +15,13 @@ export default function AdminSettlePage() {
   const [settleLoading, setSettleLoading] = useState(false);
   const [settleError, setSettleError] = useState("");
 
-  // Check sessionStorage on mount
-  useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("admin_token");
-      if (saved) {
-        setToken(saved);
-        setAuthed(true);
-      }
+  useEffect(() => {
+    const saved = sessionStorage.getItem("admin_token");
+    if (saved) {
+      setToken(saved);
+      setAuthed(true);
     }
-  });
+  }, []);
 
   const handleLogin = useCallback(async () => {
     setAuthError("");

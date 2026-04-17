@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /auth/
+
+Sitemap: https://aloprofundomlb.com/sitemap.xml

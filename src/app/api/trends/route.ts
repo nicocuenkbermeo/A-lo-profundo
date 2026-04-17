@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
-    // Hot teams: best record in last 10 games
     const teams = await prisma.team.findMany({
       include: {
         homeGames: {
@@ -51,45 +52,12 @@ export async function GET() {
       .sort((a, b) => b.last10.wins - a.last10.wins)
       .slice(0, 10);
 
-    // Top pitchers (mock ERA leaders)
-    const pitchers = await prisma.player.findMany({
-      where: { position: { in: ["SP", "RP", "CL", "P"] }, isActive: true },
-      include: { team: { select: { abbreviation: true, name: true } } },
-      take: 50,
-    });
-
-    const topPitchers = pitchers
-      .map((p) => {
-        const seed = p.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-        const era = +(2.0 + ((seed * 9301 + 49297) % 233280) / 233280 * 3.5).toFixed(2);
-        const wins = Math.floor(5 + ((seed * 7331) % 13));
-        const so = Math.floor(80 + ((seed * 4127) % 150));
-        return {
-          id: p.id,
-          name: `${p.firstName} ${p.lastName}`,
-          team: p.team.abbreviation,
-          era,
-          wins,
-          strikeouts: so,
-        };
-      })
-      .sort((a, b) => a.era - b.era)
-      .slice(0, 10);
-
-    // Betting trends (mock cover rates)
-    const bettingTrends = [
-      { label: "Favoritos ML (últimos 30 días)", value: 57.3, description: "Favoritos han ganado el 57.3% de los juegos" },
-      { label: "Tendencia Over/Under", value: 52.1, description: "El Over ha pegado en el 52.1% de los juegos" },
-      { label: "Equipos locales ML", value: 54.8, description: "Equipos locales ganan el 54.8% en casa" },
-      { label: "Run Line -1.5 favoritos", value: 44.2, description: "Favoritos cubren -1.5 en el 44.2% de juegos" },
-      { label: "Underdogs +150 o mejor", value: 38.6, description: "Underdogs a +150+ ganan el 38.6%" },
-    ];
+    const bettingTrends = await computeBettingTrends();
 
     return NextResponse.json({
       success: true,
       data: {
         hotTeams,
-        topPitchers,
         bettingTrends,
       },
     });
@@ -97,7 +65,95 @@ export async function GET() {
     console.error("Error fetching trends:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch trends" },
-      { status: 500 }
+      { status: 500 },
     );
   }
+}
+
+async function computeBettingTrends() {
+  const since = new Date();
+  since.setDate(since.getDate() - 30);
+
+  const games = await prisma.game.findMany({
+    where: { status: "FINAL", date: { gte: since } },
+    select: {
+      homeScore: true,
+      awayScore: true,
+      lines: {
+        select: {
+          homeMoneyline: true,
+          awayMoneyline: true,
+          runLineSpread: true,
+          totalLine: true,
+        },
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+      },
+    },
+  });
+
+  if (games.length === 0) {
+    return [];
+  }
+
+  let favWins = 0;
+  let favTotal = 0;
+  let overHits = 0;
+  let overTotal = 0;
+  let homeWins = 0;
+  let homeFavWins = 0;
+  let homeFavTotal = 0;
+
+  for (const g of games) {
+    const line = g.lines[0];
+    if (!line) continue;
+
+    const homeIsFav = line.homeMoneyline < line.awayMoneyline;
+    const homeWon = g.homeScore > g.awayScore;
+    const awayWon = g.awayScore > g.homeScore;
+
+    if (homeWon) homeWins++;
+
+    favTotal++;
+    if ((homeIsFav && homeWon) || (!homeIsFav && awayWon)) favWins++;
+
+    if (homeIsFav) {
+      homeFavTotal++;
+      if (homeWon) homeFavWins++;
+    }
+
+    if (line.totalLine > 0) {
+      overTotal++;
+      if (g.homeScore + g.awayScore > line.totalLine) overHits++;
+    }
+  }
+
+  const pct = (w: number, t: number) => (t > 0 ? +((w / t) * 100).toFixed(1) : 0);
+
+  return [
+    {
+      label: "Favoritos ML (últimos 30 días)",
+      value: pct(favWins, favTotal),
+      sample: favTotal,
+      description: `Favoritos ganaron ${favWins} de ${favTotal} juegos`,
+    },
+    {
+      label: "Over/Under",
+      value: pct(overHits, overTotal),
+      sample: overTotal,
+      description: `El Over pegó en ${overHits} de ${overTotal} juegos`,
+    },
+    {
+      label: "Equipos locales",
+      value: pct(homeWins, games.length),
+      sample: games.length,
+      description: `Locales ganan ${homeWins} de ${games.length}`,
+    },
+    {
+      label: "Favoritos locales",
+      value: pct(homeFavWins, homeFavTotal),
+      sample: homeFavTotal,
+      description: `Favoritos en casa ganaron ${homeFavWins} de ${homeFavTotal}`,
+    },
+  ];
 }
