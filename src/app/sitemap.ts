@@ -22,6 +22,8 @@ const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency: "da
   { path: "/trends", priority: 0.6, changeFrequency: "daily" },
   { path: "/momento-del-dia", priority: 0.6, changeFrequency: "daily" },
   { path: "/calculadora", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/metodologia", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/sabermetria", priority: 0.5, changeFrequency: "monthly" },
   { path: "/about", priority: 0.4, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.4, changeFrequency: "monthly" },
   { path: "/terms", priority: 0.3, changeFrequency: "monthly" },
