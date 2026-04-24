@@ -5,12 +5,15 @@ export function AdSenseScript() {
   if (!adsenseId) return null;
 
   return (
-    <Script
-      id="adsense-loader"
-      async
-      strategy="afterInteractive"
-      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
-      crossOrigin="anonymous"
-    />
+    <>
+      <meta name="google-adsense-account" content={adsenseId} />
+      <Script
+        id="adsense-loader"
+        async
+        strategy="afterInteractive"
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
+        crossOrigin="anonymous"
+      />
+    </>
   );
 }
